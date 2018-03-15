@@ -4,36 +4,30 @@ import com.ido.qna.controller.response.ResponseDTO;
 import com.ido.qna.controller.service.TopicService;
 import lombok.Builder;
 import lombok.Data;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
-import javax.xml.ws.Service;
-
 @RestController
-@RequestMapping("topics")
-public class TopicsController {
-    @Autowired
-    private TopicService service;
+@RequestMapping("question")
+@Slf4j
+public class QuestionController {
+
+
+    @PostMapping("ask")
+    public ResponseDTO latest(QuestionReq req){
+        log.info(req.toString());
+        return  ResponseDTO.succss("ok");
+    }
 
     @Data
-    @Builder
-    public static class TopicsDTO{
-        int id;
-        String userName;
-        String topic;
-        String title;
+    public static class QuestionReq{
         String content;
+        String title;
 
     }
-
-    @GetMapping("latest")
-    public ResponseDTO latest(){
-        return  ResponseDTO.succss(service.getLatest());
-    }
-
-
 
 }
