@@ -24,6 +24,7 @@ public class TopicsController {
         String userName;
         String topic;
         String title;
+        String content;
 
     }
 
