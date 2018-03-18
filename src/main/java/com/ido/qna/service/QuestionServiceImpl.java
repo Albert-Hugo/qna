@@ -32,10 +32,10 @@ public class QuestionServiceImpl implements QuestionService {
         Date now  = new Date();
         new SqlAppender(em)
                 .update("user_info")
-                .set("nick_name","nickName",req.getNickName())
-                .set("avatar","avatar",req.getAvatar())
-                .set("gender","gender",req.getGender())
-                .set("phone","phone",req.getPhone())
+                .set("nick_name","nickName",req.getUserBasicInfo().getNickName())
+                .set("avatar","avatar",req.getUserBasicInfo().getAvatarUrl())
+                .set("gender","gender",req.getUserBasicInfo().getGender())
+                .set("phone","phone",req.getUserBasicInfo().getPhone())
                 .update_where_1e1()
                 .update_where_and("id","id",req.getUserId())
                 .execute_update();
@@ -68,5 +68,17 @@ public class QuestionServiceImpl implements QuestionService {
                 .limit(pageable.getOffset(),pageable.getPageSize())
                 .count();
         return new PageImpl<>(result,pageable,total);
+    }
+
+    @Override
+    public Map detail(int id) {
+        StringBuilder sql = new StringBuilder("select q.id, q.title, q.content, q.create_time," +
+                "u.nick_name as userName , u.id as userId,  t.name as topicName from question q" +
+                " left join user_info u on q.user_id = u.id" +
+                " left join topic t on t.id = q.topic_id " +
+                " where 1 = 1 ");
+        List<Map<String,Object>> result = new SqlAppender(em,sql)
+                .getResultList();
+        return result.get(0);
     }
 }

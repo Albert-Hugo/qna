@@ -13,4 +13,6 @@ public interface QuestionService {
     void ask(QuestionController.QuestionReq req);
 
     Page<Map<String,Object>> getLatest(Pageable pageable);
+
+    Map detail(int id);
 }

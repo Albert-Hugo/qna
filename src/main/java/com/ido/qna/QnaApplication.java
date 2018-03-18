@@ -78,8 +78,5 @@ public class QnaApplication {
 	@AllArgsConstructor
 	public static class LoginRequest{
 		private String code;
-
-
-
 	}
 }
