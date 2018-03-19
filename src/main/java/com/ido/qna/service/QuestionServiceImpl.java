@@ -65,7 +65,6 @@ public class QuestionServiceImpl implements QuestionService {
                 " left join topic t on t.id = q.topic_id " +
                 " where 1 = 1");
        long total = new SqlAppender(em,countSql)
-                .limit(pageable.getOffset(),pageable.getPageSize())
                 .count();
         return new PageImpl<>(result,pageable,total);
     }

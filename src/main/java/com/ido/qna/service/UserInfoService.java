@@ -6,4 +6,6 @@ public interface UserInfoService {
     UserInfo getByUserOpenID(String id);
 
     UserInfo signUp(String openid);
+
+    UserInfo findUser(Integer id);
 }

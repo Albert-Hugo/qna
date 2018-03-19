@@ -20,4 +20,9 @@ public class UserInfoServiceImpl implements UserInfoService {
         .build());
 
     }
+
+    @Override
+    public UserInfo findUser(Integer id) {
+        return repo.findOne(id);
+    }
 }

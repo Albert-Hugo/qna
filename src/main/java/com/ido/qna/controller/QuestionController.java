@@ -3,6 +3,7 @@ package com.ido.qna.controller;
 import com.ido.qna.controller.response.ResponseDTO;
 import com.ido.qna.controller.service.TopicService;
 import com.ido.qna.service.QuestionService;
+import com.ido.qna.service.ReplyService;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
@@ -18,10 +19,19 @@ import org.springframework.web.bind.annotation.*;
 public class QuestionController {
     @Autowired
     QuestionService questionServ;
+    @Autowired
+    ReplyService replyService;
 
     @PostMapping("ask")
     public ResponseDTO ask(@RequestBody QuestionReq req) {
         questionServ.ask(req);
+        log.info(req.toString());
+        return ResponseDTO.succss("ok");
+    }
+
+    @PostMapping("reply")
+    public ResponseDTO reply(@RequestBody ReplyReq req) {
+        replyService.reply(req);
         log.info(req.toString());
         return ResponseDTO.succss("ok");
     }
@@ -36,6 +46,8 @@ public class QuestionController {
         return ResponseDTO.succss(questionServ.detail(id));
     }
 
+
+
     @Data
     @NoArgsConstructor
     @AllArgsConstructor
@@ -45,6 +57,17 @@ public class QuestionController {
         Integer topicId;
         Integer userId;
         UserBasicInfo userBasicInfo;
+
+
+    }
+
+    @Data
+    @NoArgsConstructor
+    @AllArgsConstructor
+    public static class ReplyReq {
+        String content;
+        Integer questionId;
+        Integer userId;
 
 
     }
