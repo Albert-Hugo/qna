@@ -28,6 +28,7 @@ import java.io.IOException;
 @RequestMapping("index")
 @Slf4j
 public class QnaApplication {
+	public static boolean toUpdateUserInfo;
 	private static final String APPID = "wx3ec303ea6e333354";
 	private static final String APP_SCRECT = "6683e6361e4fdb45d04c87569af6aa5e";
 

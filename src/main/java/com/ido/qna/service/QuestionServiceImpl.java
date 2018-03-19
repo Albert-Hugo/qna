@@ -17,6 +17,8 @@ import java.util.Date;
 import java.util.List;
 import java.util.Map;
 
+import static com.ido.qna.QnaApplication.toUpdateUserInfo;
+
 @Service
 public class QuestionServiceImpl implements QuestionService {
     @Autowired
@@ -27,18 +29,20 @@ public class QuestionServiceImpl implements QuestionService {
     EntityManager em;
 
     @Override
-    @Transactional
+    @Transactional(rollbackFor = Throwable.class)
     public void ask(QuestionController.QuestionReq req) {
         Date now  = new Date();
-        new SqlAppender(em)
-                .update("user_info")
-                .set("nick_name","nickName",req.getUserBasicInfo().getNickName())
-                .set("avatar","avatar",req.getUserBasicInfo().getAvatarUrl())
-                .set("gender","gender",req.getUserBasicInfo().getGender())
-                .set("phone","phone",req.getUserBasicInfo().getPhone())
-                .update_where_1e1()
-                .update_where_and("id","id",req.getUserId())
-                .execute_update();
+        if(toUpdateUserInfo){
+            new SqlAppender(em)
+                    .update("user_info")
+                    .set("nick_name","nickName",req.getUserBasicInfo().getNickName())
+                    .set("avatar","avatar",req.getUserBasicInfo().getAvatarUrl())
+                    .set("gender","gender",req.getUserBasicInfo().getGender())
+                    .set("phone","phone",req.getUserBasicInfo().getPhone())
+                    .update_where_1e1()
+                    .update_where_and("id","id",req.getUserId())
+                    .execute_update();
+        }
         repo.save(Question.builder()
                 .content(req.getContent())
                 .title(req.getTitle())
