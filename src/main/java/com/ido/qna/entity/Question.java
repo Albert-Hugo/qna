@@ -22,6 +22,7 @@ public class Question {
     private String content;
     private Integer topicId;
     private Integer userId;
+    private Integer readCount;
     private Date createTime;
     private Date updateTime;
 }

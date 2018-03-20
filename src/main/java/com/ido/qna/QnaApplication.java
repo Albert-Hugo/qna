@@ -5,6 +5,7 @@ import com.ido.qna.controller.response.ResponseDTO;
 import com.ido.qna.controller.response.ResultMap;
 import com.ido.qna.controller.response.WechatLoginResult;
 import com.ido.qna.entity.UserInfo;
+import com.ido.qna.service.MemoryCacheManager;
 import com.ido.qna.service.UserInfoService;
 import com.ido.qna.util.HttpUtils;
 import lombok.AllArgsConstructor;
@@ -16,6 +17,7 @@ import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
 import org.springframework.web.bind.annotation.*;
 
+import javax.annotation.PreDestroy;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpSession;
 import java.io.IOException;
@@ -30,6 +32,8 @@ public class QnaApplication {
 	private static final String APP_SCRECT = "6683e6361e4fdb45d04c87569af6aa5e";
 
 	@Autowired  UserInfoService userService;
+	@Autowired
+	MemoryCacheManager memoryCacheManager;
 
 	@PostMapping("onLogin")
 	public ResponseDTO login(@RequestBody LoginRequest req, HttpServletRequest httpRequest){
@@ -78,5 +82,12 @@ public class QnaApplication {
 	public static class LoginRequest{
 		private String code;
 		private UserInfo userInfo;
+	}
+
+
+	@PreDestroy
+	public void shutdown(){
+		memoryCacheManager.cleanUp();
+		log.info("flushing read count to database before shut down system");
 	}
 }

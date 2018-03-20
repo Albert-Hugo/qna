@@ -16,17 +16,20 @@ import javax.persistence.EntityManager;
 import java.util.Date;
 import java.util.List;
 import java.util.Map;
+import java.util.concurrent.ConcurrentHashMap;
 
 import static com.ido.qna.QnaApplication.toUpdateUserInfo;
 
 @Service
-public class QuestionServiceImpl implements QuestionService {
+public class QuestionServiceImpl implements QuestionService,MemoryCacheManager {
     @Autowired
     QuestionRepo repo;
     @Autowired
     UserInfoRepo useRepo;
     @Autowired
     EntityManager em;
+
+    private static ConcurrentHashMap<Integer,Integer> detailReadCountTable = new ConcurrentHashMap<>(20);
 
     @Override
     @Transactional(rollbackFor = Throwable.class)
@@ -55,7 +58,7 @@ public class QuestionServiceImpl implements QuestionService {
 
     @Override
     public Page<Map<String,Object>> getLatest(Pageable pageable) {
-        StringBuilder sql = new StringBuilder("select q.id, q.title, q.content, q.create_time," +
+        StringBuilder sql = new StringBuilder("select q.id, q.title, q.content, q.create_time,q.read_count," +
                 "u.nick_name as userName , u.id as userId,  t.name as topicName from question q" +
                 " left join user_info u on q.user_id = u.id" +
                 " left join topic t on t.id = q.topic_id " +
@@ -63,6 +66,18 @@ public class QuestionServiceImpl implements QuestionService {
         List<Map<String,Object>> result = new SqlAppender(em,sql)
                 .limit(pageable.getOffset(),pageable.getPageSize())
         .getResultList();
+
+        //get the latest read count from memory
+        result.stream().forEach(m-> {
+            Integer count = detailReadCountTable.get(m.get("id"));
+            if(count != null){
+                m.put("readCount",count);
+
+            }else {
+                return;
+            }
+
+        });
 
         StringBuilder countSql = new StringBuilder("select count(*) from question q " +
                 " left join user_info u on q.user_id = u.id" +
@@ -75,14 +90,42 @@ public class QuestionServiceImpl implements QuestionService {
 
     @Override
     public Map detail(int id) {
-        StringBuilder sql = new StringBuilder("select q.id, q.title, q.content, q.create_time," +
-                "u.nick_name as userName , u.id as userId, u.avatar_url , t.name as topicName from question q" +
+        StringBuilder sql = new StringBuilder("select q.id, q.title, q.content, q.create_time,q.read_count " +
+                " ,u.nick_name as userName , u.id as userId, u.avatar_url , t.name as topicName from question q" +
                 " left join user_info u on q.user_id = u.id" +
                 " left join topic t on t.id = q.topic_id " +
                 " where 1 = 1 ");
         List<Map<String,Object>> result = new SqlAppender(em,sql)
                 .and("q.id","id",Integer.valueOf(id))
                 .getResultList();
-        return result.get(0);
+        if(!result.isEmpty()){
+            //TODO
+            Map m = result.get(0);
+//            int id = m.get("id");
+            Integer idg = Integer.valueOf(id);
+            if(detailReadCountTable.get(idg)== null) {
+                detailReadCountTable.put(idg, (Integer) m.get("readCount") + 1);
+            }else {
+                detailReadCountTable.put(id, detailReadCountTable.get(m.get("id"))+1);
+            }
+            return m;
+        }
+        return null;
+    }
+
+
+    @Override
+    public void cleanUp() {
+        //TODO clean up failed
+        for(Map.Entry<Integer,Integer> entry : detailReadCountTable.entrySet()){
+            Integer id =  entry.getKey();
+            Integer readCount =  entry.getValue();
+            new SqlAppender(em)
+                    .update("question")
+                    .set("read_count","read_count",readCount)
+                    .update_where_1e1()
+                    .update_where_and("id","id",id)
+                    .execute_update();
+        }
     }
 }
