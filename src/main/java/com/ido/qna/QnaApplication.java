@@ -14,10 +14,7 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpSession;
@@ -34,8 +31,8 @@ public class QnaApplication {
 
 	@Autowired  UserInfoService userService;
 
-	@GetMapping("onLogin")
-	public ResponseDTO login(LoginRequest req, HttpServletRequest httpRequest){
+	@PostMapping("onLogin")
+	public ResponseDTO login(@RequestBody LoginRequest req, HttpServletRequest httpRequest){
 		//TODO
 		String url = "https://api.weixin.qq.com/sns/jscode2session?appid="+APPID+"&secret="+APP_SCRECT+"&js_code="+req.code+"&grant_type=authorization_code";
 		WechatLoginResult loginResult = null;
@@ -54,7 +51,8 @@ public class QnaApplication {
 			userInfo = userService.getByUserOpenID(loginResult.getOpenid());
 			if(userInfo == null){
 				log.info("user {} first time login , sign up first");
-				userInfo = userService.signUp(loginResult.getOpenid());
+				req.getUserInfo().setOpenID(loginResult.getOpenid());
+				userInfo = userService.signUp(req);
 			}
 
 			//if yes, login and store the user information to the session for later connection
@@ -79,5 +77,6 @@ public class QnaApplication {
 	@AllArgsConstructor
 	public static class LoginRequest{
 		private String code;
+		private UserInfo userInfo;
 	}
 }
