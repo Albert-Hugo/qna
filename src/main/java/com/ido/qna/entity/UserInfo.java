@@ -19,7 +19,7 @@ public class UserInfo {
     Integer id;
     private String openID;
     private String nickName;
-    private String avatar;
+    private String avatarUrl;
     private String phone;
     private byte gender;
     private String country;
