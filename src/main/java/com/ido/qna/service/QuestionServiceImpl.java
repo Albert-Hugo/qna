@@ -81,6 +81,7 @@ public class QuestionServiceImpl implements QuestionService {
                 " left join topic t on t.id = q.topic_id " +
                 " where 1 = 1 ");
         List<Map<String,Object>> result = new SqlAppender(em,sql)
+                .and("q.id","id",Integer.valueOf(id))
                 .getResultList();
         return result.get(0);
     }
