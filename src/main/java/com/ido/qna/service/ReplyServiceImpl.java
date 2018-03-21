@@ -55,9 +55,16 @@ public class ReplyServiceImpl implements ReplyService {
                 .getResultList();
 
         StringBuilder countSql = new StringBuilder("select count(*) from reply r where 1 = 1 ");
-        int size  = new SqlAppender(em,countSql)
-                .and("r,question_id","question_id",replyReq.getQuestionId())
-                .count();
+        int size  = getReplyCount(replyReq.getQuestionId());
         return new PageImpl<>(result,replyReq.getPageable(),size);
+    }
+
+    @Override
+    public int getReplyCount(int questionId) {
+        StringBuilder countSql = new StringBuilder("select count(*) from reply r where 1 = 1 ");
+        int size  = new SqlAppender(em,countSql)
+                .and("r,question_id","question_id",questionId)
+                .count();
+        return size;
     }
 }

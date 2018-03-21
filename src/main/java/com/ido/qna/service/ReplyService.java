@@ -11,4 +11,6 @@ public interface ReplyService {
     void reply(QuestionController.ReplyReq req);
 
     Page<Map<String,Object>> getReply(ReplyController.ReplyListReq replyReq);
+
+    int getReplyCount(int questionId);
 }
