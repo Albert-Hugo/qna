@@ -47,14 +47,12 @@ public class ReplyServiceImpl implements ReplyService {
 
     @Override
     public Page<Map<String,Object>> getReply(ReplyController.ReplyListReq replyReq) {
-        //TODO implement sql
         StringBuilder sql = new StringBuilder("select r.id, r.user_name, r.content  from reply r where 1 = 1 ");
         List<Map<String,Object>> result = new SqlAppender(em,sql)
                 .and("r,question_id","question_id",replyReq.getQuestionId())
                 .limit(replyReq.getPageable().getOffset(),replyReq.getPageable().getPageSize())
                 .getResultList();
 
-        StringBuilder countSql = new StringBuilder("select count(*) from reply r where 1 = 1 ");
         int size  = getReplyCount(replyReq.getQuestionId());
         return new PageImpl<>(result,replyReq.getPageable(),size);
     }

@@ -15,7 +15,10 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
-import org.springframework.web.bind.annotation.*;
+import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.RequestBody;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RestController;
 
 import javax.annotation.PreDestroy;
 import javax.servlet.http.HttpServletRequest;
@@ -37,7 +40,6 @@ public class QnaApplication {
 
 	@PostMapping("onLogin")
 	public ResponseDTO login(@RequestBody LoginRequest req, HttpServletRequest httpRequest){
-		//TODO
 		String url = "https://api.weixin.qq.com/sns/jscode2session?appid="+APPID+"&secret="+APP_SCRECT+"&js_code="+req.code+"&grant_type=authorization_code";
 		WechatLoginResult loginResult = null;
 		UserInfo userInfo = null;
@@ -87,7 +89,9 @@ public class QnaApplication {
 
 	@PreDestroy
 	public void shutdown(){
-		memoryCacheManager.cleanUp();
+//		memoryCacheManager.cleanUp();
 		log.info("flushing read count to database before shut down system");
 	}
+
+
 }

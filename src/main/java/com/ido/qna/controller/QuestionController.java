@@ -43,10 +43,8 @@ public class QuestionController {
 
     @GetMapping("detail")
     public ResponseDTO detail(int id) {
-        //TODO add queue to update view num in memory
         return ResponseDTO.succss(questionServ.detail(id));
     }
-
 
 
     @Data
@@ -76,7 +74,7 @@ public class QuestionController {
     @Data
     @NoArgsConstructor
     @AllArgsConstructor
-    public static class UserBasicInfo{
+    public static class UserBasicInfo {
         String nickName;
         String avatarUrl;
         String phone;

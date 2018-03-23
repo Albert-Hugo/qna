@@ -100,9 +100,7 @@ public class QuestionServiceImpl implements QuestionService,MemoryCacheManager {
                 .and("q.id","id",Integer.valueOf(id))
                 .getResultList();
         if(!result.isEmpty()){
-            //TODO
             Map m = result.get(0);
-//            int id = m.get("id");
             Integer idg = Integer.valueOf(id);
             if(detailReadCountTable.get(idg)== null) {
                 detailReadCountTable.put(idg, (Integer) m.get("readCount") + 1);
@@ -117,7 +115,6 @@ public class QuestionServiceImpl implements QuestionService,MemoryCacheManager {
 
     @Override
     public void cleanUp() {
-        //TODO clean up failed
         for(Map.Entry<Integer,Integer> entry : detailReadCountTable.entrySet()){
             Integer id =  entry.getKey();
             Integer readCount =  entry.getValue();
