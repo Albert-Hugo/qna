@@ -31,6 +31,7 @@ public class QuestionController {
 
     @PostMapping("reply")
     public ResponseDTO reply(@RequestBody ReplyReq req) {
+        //TODO add reply ui in the front page
         replyService.reply(req);
         log.info(req.toString());
         return ResponseDTO.succss("ok");

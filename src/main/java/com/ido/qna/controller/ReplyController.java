@@ -20,10 +20,18 @@ public class ReplyController {
     @Autowired
     ReplyService replyService;
 
+    /**
+     * fetch question reply by id
+     * @param
+     * @return
+     */
     @GetMapping()
-    public ResponseDTO findReply(@RequestBody ReplyListReq replyReq) {
-        return ResponseDTO.succss(replyService.getReply(replyReq));
+    public ResponseDTO findReply( Integer questionId,Pageable pageable) {
+
+        return ResponseDTO.succss(replyService.getReply(new ReplyListReq(questionId,pageable)));
     }
+
+
 
 
     @Data

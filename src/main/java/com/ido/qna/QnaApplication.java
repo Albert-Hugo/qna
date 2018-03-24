@@ -89,7 +89,8 @@ public class QnaApplication {
 
 	@PreDestroy
 	public void shutdown(){
-//		memoryCacheManager.cleanUp();
+		//TODO add a worker to clean mapping cache which is used to store read count or like count e.g.
+		memoryCacheManager.cleanUp();
 		log.info("flushing read count to database before shut down system");
 	}
 

@@ -6,6 +6,7 @@ import com.ido.qna.entity.Reply;
 import com.ido.qna.entity.UserInfo;
 import com.ido.qna.repo.ReplyRepo;
 import com.rainful.dao.SqlAppender;
+import com.rainful.util.DateUtil;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
@@ -47,11 +48,18 @@ public class ReplyServiceImpl implements ReplyService {
 
     @Override
     public Page<Map<String,Object>> getReply(ReplyController.ReplyListReq replyReq) {
-        StringBuilder sql = new StringBuilder("select r.id, r.user_name, r.content  from reply r where 1 = 1 ");
+        StringBuilder sql = new StringBuilder("select r.id, r.user_id, u.nick_name as userName" +
+                " , u.avatar_url  " +
+                ", r.content ,r.create_time from reply r" +
+                " join user_info u on u.id = r.user_id " +
+                " where 1 = 1 ");
         List<Map<String,Object>> result = new SqlAppender(em,sql)
-                .and("r,question_id","question_id",replyReq.getQuestionId())
+                .and("r.question_id","question_id",replyReq.getQuestionId())
                 .limit(replyReq.getPageable().getOffset(),replyReq.getPageable().getPageSize())
                 .getResultList();
+
+        //convert time format
+        result.stream().forEach(r-> r.put("createTime",DateUtil.toYyyyMMdd_HHmmss((Date) r.get("createTime"))));
 
         int size  = getReplyCount(replyReq.getQuestionId());
         return new PageImpl<>(result,replyReq.getPageable(),size);
@@ -61,7 +69,7 @@ public class ReplyServiceImpl implements ReplyService {
     public int getReplyCount(int questionId) {
         StringBuilder countSql = new StringBuilder("select count(*) from reply r where 1 = 1 ");
         int size  = new SqlAppender(em,countSql)
-                .and("r,question_id","question_id",questionId)
+                .and("r.question_id","question_id",questionId)
                 .count();
         return size;
     }

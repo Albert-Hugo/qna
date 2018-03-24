@@ -5,6 +5,7 @@ import com.ido.qna.entity.Question;
 import com.ido.qna.repo.QuestionRepo;
 import com.ido.qna.repo.UserInfoRepo;
 import com.rainful.dao.SqlAppender;
+import com.rainful.util.DateUtil;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageImpl;
@@ -99,6 +100,9 @@ public class QuestionServiceImpl implements QuestionService,MemoryCacheManager {
         List<Map<String,Object>> result = new SqlAppender(em,sql)
                 .and("q.id","id",Integer.valueOf(id))
                 .getResultList();
+
+        result.stream().forEach(r->r.put("createTime", DateUtil.toYyyyMMdd_HHmmss((Date) r.get("createTime"))));
+
         if(!result.isEmpty()){
             Map m = result.get(0);
             Integer idg = Integer.valueOf(id);
@@ -115,6 +119,7 @@ public class QuestionServiceImpl implements QuestionService,MemoryCacheManager {
 
     @Override
     public void cleanUp() {
+        //TODO set the entity hook
         for(Map.Entry<Integer,Integer> entry : detailReadCountTable.entrySet()){
             Integer id =  entry.getKey();
             Integer readCount =  entry.getValue();
