@@ -35,8 +35,6 @@ public class QnaApplication {
 	private static final String APP_SCRECT = "6683e6361e4fdb45d04c87569af6aa5e";
 
 	@Autowired  UserInfoService userService;
-	@Autowired
-	MemoryCacheManager memoryCacheManager;
 
 	@PostMapping("onLogin")
 	public ResponseDTO login(@RequestBody LoginRequest req, HttpServletRequest httpRequest){
@@ -86,13 +84,6 @@ public class QnaApplication {
 		private UserInfo userInfo;
 	}
 
-
-	@PreDestroy
-	public void shutdown(){
-		//TODO add a worker to clean mapping cache which is used to store read count or like count e.g.
-		memoryCacheManager.cleanUp();
-		log.info("flushing read count to database before shut down system");
-	}
 
 
 }
