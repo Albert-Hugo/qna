@@ -8,7 +8,7 @@ import java.util.Map;
 
 public interface ReplyService {
 
-    void reply(QuestionController.ReplyReq req);
+    Page<Map<String,Object>> reply(QuestionController.ReplyReq req);
 
     Page<Map<String,Object>> getReply(ReplyController.ReplyListReq replyReq);
 

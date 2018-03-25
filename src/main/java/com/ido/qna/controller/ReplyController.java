@@ -3,6 +3,7 @@ package com.ido.qna.controller;
 import com.ido.qna.controller.response.ResponseDTO;
 import com.ido.qna.service.ReplyService;
 import lombok.AllArgsConstructor;
+import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -37,6 +38,7 @@ public class ReplyController {
     @Data
     @NoArgsConstructor
     @AllArgsConstructor
+    @Builder
     public static class ReplyListReq {
         Integer questionId;
         Pageable pageable;

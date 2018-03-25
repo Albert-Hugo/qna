@@ -11,6 +11,7 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageImpl;
+import org.springframework.data.domain.PageRequest;
 import org.springframework.stereotype.Service;
 
 import javax.persistence.EntityManager;
@@ -30,11 +31,11 @@ public class ReplyServiceImpl implements ReplyService {
     EntityManager em;
 
     @Override
-    public void reply(QuestionController.ReplyReq req) {
+    public Page<Map<String,Object>> reply(QuestionController.ReplyReq req) {
         UserInfo u = userSer.findUser(req.getUserId());
         if(u == null){
             log.error("user not found by id {}", req.getUserId());
-            return ;
+            return null;
         }
 
         replyRepo.save(Reply.builder()
@@ -42,6 +43,11 @@ public class ReplyServiceImpl implements ReplyService {
                 .content(req.getContent())
                 .questionId(req.getQuestionId())
                 .createTime(new Date())
+        .build());
+
+        return getReply(ReplyController.ReplyListReq.builder()
+                .questionId(req.getQuestionId())
+                .pageable(new PageRequest(0,5))
         .build());
 
     }
