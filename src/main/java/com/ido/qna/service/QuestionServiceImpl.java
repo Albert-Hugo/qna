@@ -161,25 +161,34 @@ public class QuestionServiceImpl implements QuestionService,FunctionInterface.Be
     }
 
     @Override
-    public Map detail(int id) {
+    public Map detail(QuestionController.DetailReq req) {
+        int questionId = req.getQuestionId();
+        int userId = req.getUserId();
         StringBuilder sql = new StringBuilder("select q.id, q.title, q.content, q.create_time,q.read_count " +
                 " ,u.nick_name as userName , u.id as userId, u.avatar_url , t.name as topicName from question q" +
                 " left join user_info u on q.user_id = u.id" +
                 " left join topic t on t.id = q.topic_id " +
                 " where 1 = 1 ");
-        List<Map<String, Object>> result = new SqlAppender(em, sql)
-                .and("q.id", "id", Integer.valueOf(id))
-                .getResultList();
+        //TODO add vote record , include if the user already vote for this question and how many user already vote
 
-        result.stream().forEach(r -> r.put("createTime", DateUtil.toYyyyMMdd_HHmmss((Date) r.get("createTime"))));
+        List<Map<String, Object>> result = new SqlAppender(em, sql)
+                .and("q.id", "id", Integer.valueOf(questionId))
+                .getResultList();
+        QuestionLikeRecord likeRecord = likeRecordRepo.findByUserId(userId);
+
+        result.stream().forEach(r -> {
+            r.put("createTime", DateUtil.toYyyyMMdd_HHmmss((Date) r.get("createTime")));
+            r.put("voteCount",likeRecordRepo.countByQuestionId(questionId));
+            r.put("userVoteRecord",likeRecord);
+        });
 
         if (!result.isEmpty()) {
             Map m = result.get(0);
-            Integer idg = Integer.valueOf(id);
+            Integer idg = Integer.valueOf(questionId);
             if (detailReadCountTable.get(idg) == null) {
                 detailReadCountTable.put(idg, (Integer) m.get("readCount") + 1);
             } else {
-                detailReadCountTable.put(id, (Integer) detailReadCountTable.get((Integer) m.get("id")) + 1);
+                detailReadCountTable.put(questionId, (Integer) detailReadCountTable.get((Integer) m.get("id")) + 1);
             }
             return m;
         }

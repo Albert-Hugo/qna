@@ -48,8 +48,19 @@ public class QuestionController {
     }
 
     @GetMapping("detail")
-    public ResponseDTO detail(int id) {
-        return ResponseDTO.succss(questionServ.detail(id));
+    public ResponseDTO detail(DetailReq req) {
+        return ResponseDTO.succss(questionServ.detail(req));
+    }
+
+
+    @Data
+    @NoArgsConstructor
+    @AllArgsConstructor
+    public static class DetailReq {
+        Integer questionId;
+        Integer userId;
+
+
     }
 
 

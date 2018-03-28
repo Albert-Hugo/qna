@@ -12,7 +12,7 @@ public interface QuestionService {
 
     Page<Map<String,Object>> getLatest(Pageable pageable);
 
-    Map detail(int id);
+    Map detail(QuestionController.DetailReq req);
 
     void vote(QuestionController.VoteReq req);
 }
