@@ -8,10 +8,15 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
+/**
+ *
+ * @param <K> key
+ */
 @Slf4j
 public class CacheMap<K> implements FunctionInterface.BeforeCleanUp<K> {
     private Map<K, Object> map;
     //TODO make the time out configurable
+    private static int THREAD_COUNT = 0;
     private  static   long TIMEOUT = 60 * 5;
     //put key to store a object with create time
     //this map can be clean up after a key was first create after a defined time
@@ -24,7 +29,7 @@ public class CacheMap<K> implements FunctionInterface.BeforeCleanUp<K> {
 
     public CacheMap(Map<K, Object> t) {
         this.map = t;
-        CleanWorker worker = new CleanWorker(map, this, "cache-clean-up");
+        CleanWorker worker = new CleanWorker(map, this, "cache-clean-up"+THREAD_COUNT++);
         worker.start();
 
 
@@ -32,7 +37,15 @@ public class CacheMap<K> implements FunctionInterface.BeforeCleanUp<K> {
 
     public CacheMap(Map<K, Object> t, FunctionInterface.BeforeCleanUp<K> cleanUp) {
         this.map = t;
-        CleanWorker worker = new CleanWorker(map, cleanUp, "cache-clean-up");
+        CleanWorker worker = new CleanWorker(map, cleanUp, "cache-clean-up"+THREAD_COUNT++);
+        worker.start();
+
+
+    }
+
+    public CacheMap(Map<K, Object> t, FunctionInterface.BeforeCleanUp<K> cleanUp,String threadName) {
+        this.map = t;
+        CleanWorker worker = new CleanWorker(map, cleanUp, threadName);
         worker.start();
 
 

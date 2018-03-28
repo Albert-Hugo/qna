@@ -1,11 +1,9 @@
 package com.ido.qna.controller;
 
 import com.ido.qna.controller.response.ResponseDTO;
-import com.ido.qna.controller.service.TopicService;
 import com.ido.qna.service.QuestionService;
 import com.ido.qna.service.ReplyService;
 import lombok.AllArgsConstructor;
-import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -37,6 +35,13 @@ public class QuestionController {
         return ResponseDTO.succss("ok");
     }
 
+
+    @PostMapping("vote")
+    public ResponseDTO vote(@RequestBody VoteReq req) {
+        questionServ.vote(req);
+        return ResponseDTO.succss("ok");
+    }
+
     @GetMapping("latest")
     public ResponseDTO latest(Pageable page) {
         return ResponseDTO.succss(questionServ.getLatest(page));
@@ -47,6 +52,18 @@ public class QuestionController {
         return ResponseDTO.succss(questionServ.detail(id));
     }
 
+
+
+    @Data
+    @NoArgsConstructor
+    @AllArgsConstructor
+    public static class VoteReq {
+        Integer questionId;
+        Integer userId;
+        Boolean like;
+
+
+    }
 
     @Data
     @NoArgsConstructor

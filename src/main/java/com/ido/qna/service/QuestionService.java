@@ -13,4 +13,6 @@ public interface QuestionService {
     Page<Map<String,Object>> getLatest(Pageable pageable);
 
     Map detail(int id);
+
+    void vote(QuestionController.VoteReq req);
 }

@@ -2,6 +2,8 @@ package com.ido.qna.service;
 
 import com.ido.qna.controller.QuestionController;
 import com.ido.qna.entity.Question;
+import com.ido.qna.entity.QuestionLikeRecord;
+import com.ido.qna.repo.QuestionLikeRecordRepo;
 import com.ido.qna.repo.QuestionRepo;
 import com.ido.qna.repo.UserInfoRepo;
 import com.ido.qna.util.CacheMap;
@@ -18,10 +20,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import javax.persistence.EntityManager;
-import java.util.ArrayList;
-import java.util.Date;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 import java.util.concurrent.ConcurrentHashMap;
 
 import static com.ido.qna.QnaApplication.toUpdateUserInfo;
@@ -35,7 +34,49 @@ public class QuestionServiceImpl implements QuestionService,FunctionInterface.Be
     UserInfoRepo useRepo;
     @Autowired
     EntityManager em;
+    @Autowired
+    QuestionLikeRecordRepo likeRecordRepo;
     private CacheMap<Integer> detailReadCountTable = new CacheMap<>(new ConcurrentHashMap<>(10), this);
+    private CacheMap<Integer> likeRecordTable = new CacheMap<>(new ConcurrentHashMap<>(10), (toRemove->{
+        if(toRemove== null || toRemove.size() == 0){
+            return;
+        }
+
+        List<QuestionLikeRecord> toSave = new ArrayList<>(toRemove.size());
+        for (Map.Entry<Integer, Object> entry : toRemove.entrySet()) {
+            Set<QuestionLikeRecord> likeRecords = (Set<QuestionLikeRecord>) entry.getValue();
+            toSave.addAll(likeRecords);
+
+        }
+        log.info("flushing question like record  cache to db");
+        likeRecordRepo.save(toSave);
+
+    }),"like-record-clean-up");
+
+
+    @Override
+    public void vote(QuestionController.VoteReq req) {
+//        if(likeRecordTable.get(req.getQuestionId()))
+        //update the vote like , if user already vote , change to like  or dislike
+        //if not ,put into the like Set
+        Set<QuestionLikeRecord> records = (Set<QuestionLikeRecord>) likeRecordTable.get(req.getQuestionId());
+        if(records == null){
+            records = new HashSet<>(10);
+            records.add(voteToQesLikeRd(req));
+            likeRecordTable.put(req.getQuestionId(),records);
+        }else{
+            //update record set
+            records.add(voteToQesLikeRd(req));
+        }
+    }
+
+    private QuestionLikeRecord voteToQesLikeRd(QuestionController.VoteReq req ){
+        return QuestionLikeRecord.builder()
+                .like(req.getLike())
+                .questionId(req.getQuestionId())
+                .userId(req.getUserId())
+                .build();
+    }
 
     @Override
     @Transactional(rollbackFor = Throwable.class)
