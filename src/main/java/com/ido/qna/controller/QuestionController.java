@@ -39,7 +39,7 @@ public class QuestionController {
     @PostMapping("vote")
     public ResponseDTO vote(@RequestBody VoteReq req) {
         questionServ.vote(req);
-        return ResponseDTO.succss("ok");
+        return ResponseDTO.succss("vote ok");
     }
 
     @GetMapping("latest")

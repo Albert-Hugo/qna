@@ -16,28 +16,28 @@ import javax.persistence.*;
 @Getter
 @Setter
 @ToString
-@EqualsAndHashCode(exclude = {"id","like"})
+@EqualsAndHashCode(exclude = {"id","liked"})
 public class QuestionLikeRecord {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     Integer id;
     Integer questionId;
     Integer userId;
-    Boolean like;
+    Boolean liked;
 
     public static void main(String[] args){
         QuestionLikeRecord q1=  QuestionLikeRecord.builder()
                 .id(1)
                 .userId(1)
                 .questionId(1)
-                .like(false)
+                .liked(false)
                 .build();
 
         QuestionLikeRecord q2=  QuestionLikeRecord.builder()
                 .id(2)
                 .userId(1)
                 .questionId(1)
-                .like(true)
+                .liked(true)
                 .build();
 
         System.out.println(q1.equals(q2));

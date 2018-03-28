@@ -17,7 +17,7 @@ public class CacheMap<K> implements FunctionInterface.BeforeCleanUp<K> {
     private Map<K, Object> map;
     //TODO make the time out configurable
     private static int THREAD_COUNT = 0;
-    private  static   long TIMEOUT = 60 * 5;
+    private  static   long TIMEOUT = 60 * 1;
     //put key to store a object with create time
     //this map can be clean up after a key was first create after a defined time
 

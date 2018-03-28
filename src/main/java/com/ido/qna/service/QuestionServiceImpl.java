@@ -6,6 +6,7 @@ import com.ido.qna.entity.QuestionLikeRecord;
 import com.ido.qna.repo.QuestionLikeRecordRepo;
 import com.ido.qna.repo.QuestionRepo;
 import com.ido.qna.repo.UserInfoRepo;
+import com.ido.qna.service.domain.CacheVoteRecords;
 import com.ido.qna.util.CacheMap;
 import com.ido.qna.util.FunctionInterface;
 import com.rainful.dao.SqlAppender;
@@ -42,13 +43,14 @@ public class QuestionServiceImpl implements QuestionService,FunctionInterface.Be
             return;
         }
 
-        List<QuestionLikeRecord> toSave = new ArrayList<>(toRemove.size());
+        Set<QuestionLikeRecord> toSave = new HashSet<>(toRemove.size());
         for (Map.Entry<Integer, Object> entry : toRemove.entrySet()) {
-            Set<QuestionLikeRecord> likeRecords = (Set<QuestionLikeRecord>) entry.getValue();
-            toSave.addAll(likeRecords);
+            CacheVoteRecords cacheVoteRecords = (CacheVoteRecords) entry.getValue();
+            toSave.addAll(cacheVoteRecords.getVoteRecords());
 
         }
         log.info("flushing question like record  cache to db");
+        //TODO update the already exist record instead of save one more for those user already vote before
         likeRecordRepo.save(toSave);
 
     }),"like-record-clean-up");
@@ -59,20 +61,23 @@ public class QuestionServiceImpl implements QuestionService,FunctionInterface.Be
 //        if(likeRecordTable.get(req.getQuestionId()))
         //update the vote like , if user already vote , change to like  or dislike
         //if not ,put into the like Set
-        Set<QuestionLikeRecord> records = (Set<QuestionLikeRecord>) likeRecordTable.get(req.getQuestionId());
-        if(records == null){
-            records = new HashSet<>(10);
-            records.add(voteToQesLikeRd(req));
-            likeRecordTable.put(req.getQuestionId(),records);
+        CacheVoteRecords cacheVoteRecords = (CacheVoteRecords) likeRecordTable.get(req.getQuestionId());
+        if(cacheVoteRecords == null){
+            log.error("the cache vote record should not be null in here");
         }else{
             //update record set
-            records.add(voteToQesLikeRd(req));
+            QuestionLikeRecord rc = voteToQesLikeRd(req);
+            int c = rc.getLiked() ? 1 : -1 ;
+            //update vote count in cache
+            cacheVoteRecords.setVoteCount(cacheVoteRecords.getVoteCount()+c);
+            cacheVoteRecords.getVoteRecords().add(rc);
+
         }
     }
 
     private QuestionLikeRecord voteToQesLikeRd(QuestionController.VoteReq req ){
         return QuestionLikeRecord.builder()
-                .like(req.getLike())
+                .liked(req.getLike())
                 .questionId(req.getQuestionId())
                 .userId(req.getUserId())
                 .build();
@@ -174,22 +179,45 @@ public class QuestionServiceImpl implements QuestionService,FunctionInterface.Be
         List<Map<String, Object>> result = new SqlAppender(em, sql)
                 .and("q.id", "id", Integer.valueOf(questionId))
                 .getResultList();
-        QuestionLikeRecord likeRecord = likeRecordRepo.findByUserId(userId);
+        QuestionLikeRecord likeRecord = likeRecordRepo.findByUserIdAndQuestionId(userId,questionId);
 
+        //TODO get the vote cache from cache table ,if not exist , fetch it from db ,and store to cache
+        CacheVoteRecords cacheVoteRecords = (CacheVoteRecords) likeRecordTable.get(questionId);
+        int voteCount = 0;
+        if(cacheVoteRecords == null){
+            int likeC = likeRecordRepo.countByQuestionIdAndLiked(questionId,true);
+            int disLikeC = likeRecordRepo.countByQuestionIdAndLiked(questionId,false);
+            voteCount = likeC - disLikeC;
+            cacheVoteRecords = CacheVoteRecords.builder()
+                    //only need to fetch the count
+                    .voteCount(voteCount)
+                    .voteRecords(new HashSet<>(0))
+                    .build();
+            likeRecordTable.put(questionId,cacheVoteRecords);
+        }else{
+            voteCount = cacheVoteRecords.getVoteCount();
+        }
+
+
+        final Integer vc = Integer.valueOf(voteCount);
         result.stream().forEach(r -> {
             r.put("createTime", DateUtil.toYyyyMMdd_HHmmss((Date) r.get("createTime")));
-            r.put("voteCount",likeRecordRepo.countByQuestionId(questionId));
+            r.put("voteCount",vc);
             r.put("userVoteRecord",likeRecord);
         });
 
         if (!result.isEmpty()) {
             Map m = result.get(0);
             Integer idg = Integer.valueOf(questionId);
-            if (detailReadCountTable.get(idg) == null) {
+            Integer readCount = (Integer) detailReadCountTable.get(idg);
+            if (readCount == null) {
                 detailReadCountTable.put(idg, (Integer) m.get("readCount") + 1);
             } else {
-                detailReadCountTable.put(questionId, (Integer) detailReadCountTable.get((Integer) m.get("id")) + 1);
+                ++readCount;
+                detailReadCountTable.put(questionId, readCount);
             }
+            //return the newest read count
+            m.put("readCount",readCount);
             return m;
         }
         return null;
