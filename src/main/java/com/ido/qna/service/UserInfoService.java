@@ -33,4 +33,7 @@ public interface UserInfoService {
      * @return
      */
     Map personalInfo(Integer id);
+
+
+    Integer getIdByOpenId(String openId);
 }

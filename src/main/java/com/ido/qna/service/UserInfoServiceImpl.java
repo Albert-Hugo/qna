@@ -1,10 +1,14 @@
 package com.ido.qna.service;
 
+import com.google.common.cache.CacheBuilder;
+import com.google.common.cache.CacheLoader;
+import com.google.common.cache.LoadingCache;
 import com.ido.qna.QnaApplication;
 import com.ido.qna.entity.UserInfo;
 import com.ido.qna.repo.UserInfoRepo;
 import com.rainful.dao.SqlAppender;
 import com.rainful.util.HashMap;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.PageImpl;
 import org.springframework.stereotype.Service;
@@ -12,17 +16,42 @@ import org.springframework.stereotype.Service;
 import javax.persistence.EntityManager;
 import java.util.List;
 import java.util.Map;
+import java.util.concurrent.ExecutionException;
+import java.util.concurrent.TimeUnit;
 
 @Service
+@Slf4j
 public class UserInfoServiceImpl implements UserInfoService {
     @Autowired
     UserInfoRepo repo;
     @Autowired
     EntityManager em;
+    LoadingCache<String,Integer> openIdToUserId = CacheBuilder.newBuilder()
+            .maximumSize(1000)
+            .expireAfterAccess(5, TimeUnit.MINUTES)
+            .build(new CacheLoader<String, Integer>() {
+        @Override
+        public Integer load(String s) throws Exception {
+            return repo.getIdByOpenId(s);
+        }
+    });
+
 
     @Override
     public UserInfo getByUserOpenID(String id) {
         return repo.findByOpenID(id);
+    }
+
+    @Override
+    public Integer getIdByOpenId(String id)  {
+        //here to cache the login result , for frequency login will be a bottle neck for this system
+        try {
+            return openIdToUserId.get(id);
+        } catch (ExecutionException e) {
+            log.error(e.getMessage(),e);
+        }
+        return null;
+
     }
 
 
