@@ -70,6 +70,7 @@ public class QuestionController {
     @AllArgsConstructor
     public static class VoteReq {
         Integer questionId;
+        Integer id;
         Integer userId;
         Boolean like;
 

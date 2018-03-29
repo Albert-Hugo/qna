@@ -50,7 +50,7 @@ public class QuestionServiceImpl implements QuestionService,FunctionInterface.Be
 
         }
         log.info("flushing question like record  cache to db");
-        //TODO update the already exist record instead of save one more for those user already vote before
+        // update the already exist record instead of save one more for those user already vote before
         likeRecordRepo.save(toSave);
 
     }),"like-record-clean-up");
@@ -78,6 +78,7 @@ public class QuestionServiceImpl implements QuestionService,FunctionInterface.Be
     private QuestionLikeRecord voteToQesLikeRd(QuestionController.VoteReq req ){
         return QuestionLikeRecord.builder()
                 .liked(req.getLike())
+                .id(req.getId())
                 .questionId(req.getQuestionId())
                 .userId(req.getUserId())
                 .build();
