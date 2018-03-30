@@ -14,6 +14,7 @@ import com.rainful.util.BeanUtil;
 import com.rainful.util.DateUtil;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageImpl;
 import org.springframework.data.domain.Pageable;
@@ -34,6 +35,7 @@ public class QuestionServiceImpl implements QuestionService,FunctionInterface.Be
     @Autowired
     UserInfoRepo useRepo;
     @Autowired
+    @Qualifier("mysqlManager")
     EntityManager em;
     @Autowired
     QuestionLikeRecordRepo likeRecordRepo;

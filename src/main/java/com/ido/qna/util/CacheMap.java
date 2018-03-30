@@ -3,10 +3,7 @@ package com.ido.qna.util;
 import lombok.extern.slf4j.Slf4j;
 
 import java.time.LocalDateTime;
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 
 /**
  *
@@ -15,9 +12,9 @@ import java.util.Map;
 @Slf4j
 public class CacheMap<K> implements FunctionInterface.BeforeCleanUp<K> {
     private Map<K, Object> map;
-    //TODO make the time out configurable
+    // make the time out configurable
     private static int THREAD_COUNT = 0;
-    private  static   long TIMEOUT = 60 * 1;
+    private    long TIMEOUT = 60 * 1;
     //put key to store a object with create time
     //this map can be clean up after a key was first create after a defined time
 
@@ -35,8 +32,66 @@ public class CacheMap<K> implements FunctionInterface.BeforeCleanUp<K> {
 
     }
 
+    @Slf4j
+    public static class CacheMapBuilder<K>{
+        private static CacheMapBuilder<?> builder ;
+        private Map<K,Object> map = null;
+        private int timeout = 60;
+        private FunctionInterface.BeforeCleanUp<K> defaultCleanUp = (toRemove -> {
+            log.warn("default clean up ");
+        });
+
+        public static  <K> CacheMapBuilder builder(){
+            builder = new CacheMapBuilder<K>();
+            return builder;
+        }
+
+        public CacheMapBuilder map(Map<K,Object> m){
+            Objects.requireNonNull(m);
+            this.map = m;
+            return this;
+        }
+
+        /**
+         * how many time after put into the map to remove, second base  time unit
+         * @param t second
+         * @return
+         */
+        public CacheMapBuilder timeout(int t){
+            if(t == 0){
+                throw new IllegalArgumentException("time out must greater than 0");
+            }
+            this.timeout = t;
+            return this;
+        }
+
+        public CacheMapBuilder beforeCleanUpCallBack(FunctionInterface.BeforeCleanUp callback){
+            if(callback!=null){
+                this.defaultCleanUp = callback;
+            }
+            return this;
+        }
+
+        public CacheMap<K> build(){
+            CacheMap<K> map = new CacheMap<>(this.map,this.defaultCleanUp,this.timeout);
+            return map;
+
+        }
+    }
+
+
+
     public CacheMap(Map<K, Object> t, FunctionInterface.BeforeCleanUp<K> cleanUp) {
         this.map = t;
+        CleanWorker worker = new CleanWorker(map, cleanUp, "cache-clean-up"+THREAD_COUNT++);
+        worker.start();
+
+
+    }
+
+    public CacheMap(Map<K, Object> t, FunctionInterface.BeforeCleanUp<K> cleanUp,int timeout) {
+        this.map = t;
+        this.TIMEOUT = timeout;
         CleanWorker worker = new CleanWorker(map, cleanUp, "cache-clean-up"+THREAD_COUNT++);
         worker.start();
 
@@ -79,7 +134,7 @@ public class CacheMap<K> implements FunctionInterface.BeforeCleanUp<K> {
     }
 
 
-    private static class CleanWorker<K> extends Thread {
+    private  class CleanWorker<K> extends Thread {
         private Map<K, Object> table;
         FunctionInterface.BeforeCleanUp cleanUp;
 
