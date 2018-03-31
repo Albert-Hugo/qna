@@ -124,10 +124,10 @@ public class MysqlConfig {
         log.info("loading production mysql config");
         DriverManagerDataSource dataSource
                 = new DriverManagerDataSource();
-        dataSource.setUrl("jdbc:mysql://172.16.0.9:3306/xswy_dev_main?useUnicode=yes&characterEncoding=UTF-8&autoReconnect=true&useSSL=false");
+        dataSource.setUrl("jdbc:mysql://localhost/qna?useUnicode=yes&characterEncoding=UTF-8&autoReconnect=true&useSSL=false");
         dataSource.setDriverClassName("com.mysql.jdbc.Driver");
-        dataSource.setUsername("xswy_main_dev");
-        dataSource.setPassword("main!%)^dev");
+        dataSource.setUsername("root");
+        dataSource.setPassword("nopassword666");
 
         return dataSource;
     }

@@ -65,11 +65,11 @@
 			<version>5.1.38</version>
 		</dependency>
 
-		<dependency>
-			<groupId>com.h2database</groupId>
-			<artifactId>h2</artifactId>
-			<version>1.4.194</version>
-		</dependency>
+		<!--<dependency>-->
+			<!--<groupId>com.h2database</groupId>-->
+			<!--<artifactId>h2</artifactId>-->
+			<!--<version>1.4.194</version>-->
+		<!--</dependency>-->
 
 		<dependency>
 			<groupId>com.yundan</groupId>
@@ -84,15 +84,15 @@
 		</dependency>
 
 
-		<dependency>
-			<groupId>org.jetbrains.kotlin</groupId>
-			<artifactId>kotlin-stdlib-jre8</artifactId>
-			<version>${kotlin.version}</version>
-		</dependency>
-		<dependency>
-			<groupId>com.fasterxml.jackson.module</groupId>
-			<artifactId>jackson-module-kotlin</artifactId>
-		</dependency>
+		<!--<dependency>-->
+			<!--<groupId>org.jetbrains.kotlin</groupId>-->
+			<!--<artifactId>kotlin-stdlib-jre8</artifactId>-->
+			<!--<version>${kotlin.version}</version>-->
+		<!--</dependency>-->
+		<!--<dependency>-->
+			<!--<groupId>com.fasterxml.jackson.module</groupId>-->
+			<!--<artifactId>jackson-module-kotlin</artifactId>-->
+		<!--</dependency>-->
 	</dependencies>
 
 	<build>
@@ -134,12 +134,12 @@
 						</goals>
 					</execution>
 				</executions>
-				<dependencies>
-					<dependency>
-						<groupId>org.jetbrains.kotlin</groupId>
-						<artifactId>kotlin-maven-allopen</artifactId>
-					</dependency>
-				</dependencies>
+				<!--<dependencies>-->
+					<!--<dependency>-->
+						<!--<groupId>org.jetbrains.kotlin</groupId>-->
+						<!--<artifactId>kotlin-maven-allopen</artifactId>-->
+					<!--</dependency>-->
+				<!--</dependencies>-->
 			</plugin>
 		</plugins>
 	</build>
