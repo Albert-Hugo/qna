@@ -49,6 +49,8 @@ public class UserInfoServiceImpl implements UserInfoService {
             return openIdToUserId.get(id);
         } catch (ExecutionException e) {
             log.error(e.getMessage(),e);
+        }catch (CacheLoader.InvalidCacheLoadException e){
+            log.warn(e.getMessage());
         }
         return null;
 

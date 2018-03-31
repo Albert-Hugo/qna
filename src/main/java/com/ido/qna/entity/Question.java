@@ -20,6 +20,7 @@ public class Question {
     Integer id;
     private String title;
     private String content;
+    private String imgUrl;
     private Integer topicId;
     private Integer userId;
     private Integer readCount;

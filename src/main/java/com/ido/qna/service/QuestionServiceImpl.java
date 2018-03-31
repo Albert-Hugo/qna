@@ -20,8 +20,10 @@ import org.springframework.data.domain.PageImpl;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import org.springframework.web.multipart.MultipartFile;
 
 import javax.persistence.EntityManager;
+import java.io.IOException;
 import java.util.*;
 import java.util.concurrent.ConcurrentHashMap;
 
@@ -39,6 +41,9 @@ public class QuestionServiceImpl implements QuestionService,FunctionInterface.Be
     EntityManager em;
     @Autowired
     QuestionLikeRecordRepo likeRecordRepo;
+    @Autowired
+    FileUploadService uploadService;
+
     private CacheMap<Integer> detailReadCountTable = new CacheMap<>(new ConcurrentHashMap<>(10), this);
     private CacheMap<Integer> likeRecordTable = new CacheMap<>(new ConcurrentHashMap<>(10), (toRemove->{
         if(toRemove== null || toRemove.size() == 0){
@@ -112,22 +117,32 @@ public class QuestionServiceImpl implements QuestionService,FunctionInterface.Be
 
     @Override
     @Transactional(rollbackFor = Throwable.class)
-    public void ask(QuestionController.QuestionReq req) {
+    public void ask(QuestionController.QuestionReq req,MultipartFile file) {
         Date now = new Date();
         if (toUpdateUserInfo) {
             new SqlAppender(em)
                     .update("user_info")
-                    .set("nick_name", "nickName", req.getUserBasicInfo().getNickName())
-                    .set("avatar_url", "avatar", req.getUserBasicInfo().getAvatarUrl())
-                    .set("gender", "gender", req.getUserBasicInfo().getGender())
-                    .set("phone", "phone", req.getUserBasicInfo().getPhone())
+                    .set("nick_name", "nickName", req.getNickName())
+                    .set("avatar_url", "avatar", req.getAvatarUrl())
+                    .set("gender", "gender", req.getGender())
+                    .set("phone", "phone", req.getPhone())
                     .update_where_1e1()
                     .update_where_and("id", "id", req.getUserId())
                     .execute_update();
         }
+        String filePath = null;
+        if(file != null){
+            try {
+                filePath = uploadService.upload(file.getOriginalFilename(),file.getInputStream());
+            } catch (IOException e) {
+                e.printStackTrace();
+            }
+        }
+
         repo.save(Question.builder()
                 .content(req.getContent())
                 .title(req.getTitle())
+                .imgUrl(filePath)
                 .topicId(req.getTopicId())
                 .userId(req.getUserId())
                 .createTime(now)
@@ -172,7 +187,7 @@ public class QuestionServiceImpl implements QuestionService,FunctionInterface.Be
     public Map detail(QuestionController.DetailReq req) {
         int questionId = req.getQuestionId();
         int userId = req.getUserId();
-        StringBuilder sql = new StringBuilder("select q.id, q.title, q.content, q.create_time,q.read_count " +
+        StringBuilder sql = new StringBuilder("select q.id, q.title, q.content, q.create_time,q.read_count, q.img_url" +
                 " ,u.nick_name as userName , u.id as userId, u.avatar_url , t.name as topicName from question q" +
                 " left join user_info u on q.user_id = u.id" +
                 " left join topic t on t.id = q.topic_id " +
