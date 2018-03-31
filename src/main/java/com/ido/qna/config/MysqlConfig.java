@@ -85,6 +85,21 @@ public class MysqlConfig {
 
     @Primary
     @Bean
+    @Profile("pc")
+    public DataSource mysqlMyPcDataSource() {
+
+        DriverManagerDataSource dataSource
+                = new DriverManagerDataSource();
+        dataSource.setUrl("jdbc:mysql://localhost/qna?useUnicode=yes&characterEncoding=UTF-8&autoReconnect=true&useSSL=false");
+        dataSource.setDriverClassName("com.mysql.jdbc.Driver");
+        dataSource.setUsername("root");
+        dataSource.setPassword("teamoshary520");
+
+        return dataSource;
+    }
+
+    @Primary
+    @Bean
     @Profile("work")
     public DataSource mysqlDevDataSource() {
 
