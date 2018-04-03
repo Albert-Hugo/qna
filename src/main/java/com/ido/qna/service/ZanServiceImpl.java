@@ -7,9 +7,11 @@ import com.ido.qna.repo.ZanRepo;
 import com.ido.qna.service.domain.CacheVoteRecords;
 import com.ido.qna.util.CacheMap;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 
 import java.util.HashSet;
+import java.util.List;
 import java.util.Map;
 import java.util.Set;
 import java.util.concurrent.ConcurrentHashMap;
@@ -38,5 +40,10 @@ public class ZanServiceImpl implements  ZanService{
     @Override
     public void zan(QuestionController.ZanReq req) {
         //TODO
+    }
+
+    @Override
+    public List loadZan(int questionId, int userId, Pageable pageable) {
+        return null;
     }
 }
