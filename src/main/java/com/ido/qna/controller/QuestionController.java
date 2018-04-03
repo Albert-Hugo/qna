@@ -4,6 +4,7 @@ import com.ido.qna.controller.response.ResponseDTO;
 import com.ido.qna.service.FileUploadService;
 import com.ido.qna.service.QuestionService;
 import com.ido.qna.service.ReplyService;
+import com.ido.qna.service.ZanService;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
@@ -23,6 +24,8 @@ public class QuestionController {
     QuestionService questionServ;
     @Autowired
     ReplyService replyService;
+@   Autowired
+    ZanService zanService;
 
     @Autowired
     FileUploadService uploadService;
@@ -45,6 +48,14 @@ public class QuestionController {
     public ResponseDTO reply(@RequestBody ReplyReq req) {
         //TODO add reply ui in the front page
         replyService.reply(req);
+        log.info(req.toString());
+        return ResponseDTO.succss("ok");
+    }
+
+    @PostMapping("zan")
+    public ResponseDTO zan(@RequestBody ZanReq req) {
+        //TODO add reply ui in the front page
+        zanService.zan(req);
         log.info(req.toString());
         return ResponseDTO.succss("ok");
     }
@@ -78,6 +89,15 @@ public class QuestionController {
     }
 
 
+    @Data
+    @NoArgsConstructor
+    @AllArgsConstructor
+    public static class ZanReq {
+        Integer replyId;
+        Integer id;
+        Integer userId;
+
+    }
 
     @Data
     @NoArgsConstructor

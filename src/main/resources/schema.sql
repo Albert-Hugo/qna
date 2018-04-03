@@ -53,3 +53,10 @@ CREATE TABLE `question_like_record` (
   `liked` bit(1) DEFAULT NULL,
   PRIMARY KEY (`id`)
 ) ENGINE=InnoDB AUTO_INCREMENT=16 DEFAULT CHARSET=utf8mb4;
+
+CREATE TABLE `zan_record` (
+  `id` int(11) unsigned NOT NULL AUTO_INCREMENT,
+  `reply_id` int(11) DEFAULT NULL,
+  `user_id` int(11) DEFAULT NULL,
+  PRIMARY KEY (`id`)
+) ENGINE=InnoDB AUTO_INCREMENT=16 DEFAULT CHARSET=utf8mb4;
