@@ -97,6 +97,7 @@ public class ReplyServiceImpl implements ReplyService {
             int userId = (int) r.get("userId");
             int replyId = (int) r.get("id");
             r.put("isZaned",zanService.checkIfUserZanReply(userId,replyId));
+            r.put("zanCount",zanService.countByReplyId(replyId));
         });
 
         int size  = getReplyCount(replyReq.getQuestionId());

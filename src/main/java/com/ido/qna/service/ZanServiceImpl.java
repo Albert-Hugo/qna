@@ -27,8 +27,6 @@ public class ZanServiceImpl implements  ZanService{
         if(toRemove== null || toRemove.size() == 0){
             return;
         }
-        //  todo finish the cache clean up logic
-//
         Set<ZanRecord> toSave = new HashSet<>(toRemove.size());
         for (Map.Entry<Integer, Object> entry : toRemove.entrySet()) {
             Set<QuestionController.ZanReq> zanReqs = (Set<QuestionController.ZanReq>) entry.getValue();
@@ -42,7 +40,6 @@ public class ZanServiceImpl implements  ZanService{
 
         }
         log.info("flushing question zan record  cache to db");
-//        // update the already exist record instead of save one more for those user already vote before
         zanRepo.save(toSave);
 
     }),"zan-record-clean-up");
@@ -50,7 +47,6 @@ public class ZanServiceImpl implements  ZanService{
 
     @Override
     public void zan(QuestionController.ZanReq req) {
-        //TODO
         Set<QuestionController.ZanReq> zanRecords = (Set<QuestionController.ZanReq>) zanRecordTable.get(req.getReplyId());
         if(zanRecords != null){
             zanRecords.add(req);
@@ -69,5 +65,10 @@ public class ZanServiceImpl implements  ZanService{
     @Override
     public boolean checkIfUserZanReply(int userId, int replyId) {
         return zanRepo.countByUserIdAndReplyId(userId,replyId)>0;
+    }
+
+    @Override
+    public long countByReplyId(int replyId) {
+        return zanRepo.countByReplyId(replyId);
     }
 }

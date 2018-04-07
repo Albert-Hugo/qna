@@ -27,4 +27,11 @@ public interface ZanService {
      * @return true 为已经点赞
      */
     boolean checkIfUserZanReply(int userId,int replyId);
+
+    /**
+     * 获得获取的总赞数
+     * @param replyId
+     * @return
+     */
+    long countByReplyId(int replyId);
 }

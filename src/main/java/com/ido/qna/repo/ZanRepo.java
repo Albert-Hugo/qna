@@ -11,4 +11,6 @@ public interface ZanRepo extends JpaRepository<ZanRecord,Integer> {
      * @return
      */
     long countByUserIdAndReplyId(int userId, int replyId);
+
+    long countByReplyId(int replyId);
 }

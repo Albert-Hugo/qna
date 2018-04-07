@@ -29,7 +29,19 @@ public class ReplyController {
      */
     @GetMapping()
     public ResponseDTO findReply( Integer questionId,Integer userId,Pageable pageable) {
-        return ResponseDTO.succss(replyService.getReply(new ReplyListReq(questionId, userId, pageable,null)));
+
+        return ResponseDTO.succss(replyService.getReply(new ReplyListReq(questionId, userId, pageable, new Sorter() {
+            @Override
+            public boolean isDesc() {
+                return false;
+            }
+
+            @Override
+            public String sortField() {
+                //TODO 添加根据 赞的数量来排序
+                return null;
+            }
+        })));
     }
 
 
