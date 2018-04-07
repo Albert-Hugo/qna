@@ -2,6 +2,7 @@ package com.ido.qna.controller;
 
 import com.ido.qna.controller.response.ResponseDTO;
 import com.ido.qna.service.ReplyService;
+import com.rainful.dao.Sorter;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
@@ -27,9 +28,8 @@ public class ReplyController {
      * @return
      */
     @GetMapping()
-    public ResponseDTO findReply( Integer questionId,Pageable pageable) {
-
-        return ResponseDTO.succss(replyService.getReply(new ReplyListReq(questionId,pageable)));
+    public ResponseDTO findReply( Integer questionId,Integer userId,Pageable pageable) {
+        return ResponseDTO.succss(replyService.getReply(new ReplyListReq(questionId, userId, pageable,null)));
     }
 
 
@@ -41,6 +41,8 @@ public class ReplyController {
     @Builder
     public static class ReplyListReq {
         Integer questionId;
+        Integer userId;
         Pageable pageable;
+        Sorter sorter;
     }
 }

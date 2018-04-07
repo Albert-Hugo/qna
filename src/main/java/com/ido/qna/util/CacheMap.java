@@ -102,6 +102,15 @@ public class CacheMap<K> implements FunctionInterface.BeforeCleanUp<K> {
 
     }
 
+    public CacheMap(Map<K, Object> t, FunctionInterface.BeforeCleanUp<K> cleanUp, int timeout, String threadName) {
+        this.map = t;
+        this.TIMEOUT = timeout;
+        CleanWorker worker = new CleanWorker(map, cleanUp, threadName);
+        worker.start();
+
+
+    }
+
     public CacheMap(Map<K, Object> t, FunctionInterface.BeforeCleanUp<K> cleanUp, String threadName) {
         this.map = t;
         CleanWorker worker = new CleanWorker(map, cleanUp, threadName);

@@ -7,6 +7,7 @@ import com.ido.qna.service.ReplyService;
 import com.ido.qna.service.ZanService;
 import lombok.AllArgsConstructor;
 import lombok.Data;
+import lombok.EqualsAndHashCode;
 import lombok.NoArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -47,16 +48,13 @@ public class QuestionController {
     @PostMapping("reply")
     public ResponseDTO reply(@RequestBody ReplyReq req) {
         //TODO add reply ui in the front page
-        replyService.reply(req);
-        log.info(req.toString());
-        return ResponseDTO.succss("ok");
+        return ResponseDTO.succss(replyService.reply(req));
     }
 
     @PostMapping("zan")
     public ResponseDTO zan(@RequestBody ZanReq req) {
         //TODO add reply ui in the front page
         zanService.zan(req);
-        log.info(req.toString());
         return ResponseDTO.succss("ok");
     }
 
@@ -92,6 +90,7 @@ public class QuestionController {
     @Data
     @NoArgsConstructor
     @AllArgsConstructor
+    @EqualsAndHashCode(exclude = {"id"})
     public static class ZanReq {
         Integer replyId;
         Integer id;

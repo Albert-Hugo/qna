@@ -5,16 +5,21 @@ import com.ido.qna.controller.ReplyController;
 import com.ido.qna.entity.Reply;
 import com.ido.qna.entity.UserInfo;
 import com.ido.qna.repo.ReplyRepo;
+import com.rainful.dao.Sorter;
 import com.rainful.dao.SqlAppender;
 import com.rainful.util.DateUtil;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageImpl;
 import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
 
+import javax.annotation.Resource;
 import javax.persistence.EntityManager;
+import java.util.Arrays;
 import java.util.Date;
 import java.util.List;
 import java.util.Map;
@@ -26,9 +31,11 @@ public class ReplyServiceImpl implements ReplyService {
     ReplyRepo replyRepo;
     @Autowired
     UserInfoService userSer;
-
     @Autowired
+    @Qualifier("mysqlManager")
     EntityManager em;
+    @Autowired
+    ZanService zanService;
 
     @Override
     public Page<Map<String,Object>> reply(QuestionController.ReplyReq req) {
@@ -45,8 +52,22 @@ public class ReplyServiceImpl implements ReplyService {
                 .createTime(new Date())
         .build());
 
+        //返回最新的回复列表，这里排序根据最新事件，用用户看到自己最新的评论
         return getReply(ReplyController.ReplyListReq.builder()
                 .questionId(req.getQuestionId())
+                .userId(req.getUserId())
+                .sorter(new Sorter(){
+
+                    @Override
+                    public boolean isDesc() {
+                        return true;
+                    }
+
+                    @Override
+                    public String sortField() {
+                        return "createTime";
+                    }
+                })
                 .pageable(new PageRequest(0,5))
         .build());
 
@@ -56,16 +77,27 @@ public class ReplyServiceImpl implements ReplyService {
     public Page<Map<String,Object>> getReply(ReplyController.ReplyListReq replyReq) {
         StringBuilder sql = new StringBuilder("select r.id, r.user_id, u.nick_name as userName" +
                 " , u.avatar_url  " +
-                ", r.content ,r.create_time from reply r" +
+                ", r.content ,r.create_time " +
+                "from reply r " +
                 " join user_info u on u.id = r.user_id " +
                 " where 1 = 1 ");
+        List<Sorter> sorters = null;
+        if(replyReq.getSorter() != null){
+            sorters = Arrays.asList(replyReq.getSorter());
+        }
         List<Map<String,Object>> result = new SqlAppender(em,sql)
                 .and("r.question_id","question_id",replyReq.getQuestionId())
+                .orderBy(sorters)
                 .limit(replyReq.getPageable().getOffset(),replyReq.getPageable().getPageSize())
                 .getResultList();
 
         //convert time format
-        result.stream().forEach(r-> r.put("createTime",DateUtil.toYyyyMMdd_HHmmss((Date) r.get("createTime"))));
+        result.stream().forEach(r-> {
+            r.put("createTime",DateUtil.toYyyyMMdd_HHmmss((Date) r.get("createTime")));
+            int userId = (int) r.get("userId");
+            int replyId = (int) r.get("id");
+            r.put("isZaned",zanService.checkIfUserZanReply(userId,replyId));
+        });
 
         int size  = getReplyCount(replyReq.getQuestionId());
         return new PageImpl<>(result,replyReq.getPageable(),size);

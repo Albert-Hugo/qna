@@ -192,14 +192,14 @@ public class QuestionServiceImpl implements QuestionService,FunctionInterface.Be
                 " left join user_info u on q.user_id = u.id" +
                 " left join topic t on t.id = q.topic_id " +
                 " where 1 = 1 ");
-        //TODO add vote record , include if the user already vote for this question and how many user already vote
+        // add vote record , include if the user already vote for this question and how many user already vote
 
         List<Map<String, Object>> result = new SqlAppender(em, sql)
                 .and("q.id", "id", Integer.valueOf(questionId))
                 .getResultList();
         QuestionLikeRecord likeRecord = likeRecordRepo.findByUserIdAndQuestionId(userId,questionId);
 
-        //TODO get the vote cache from cache table ,if not exist , fetch it from db ,and store to cache
+        // get the vote cache from cache table ,if not exist , fetch it from db ,and store to cache
         CacheVoteRecords cacheVoteRecords = (CacheVoteRecords) likeRecordTable.get(questionId);
         int voteCount = 0;
         if(cacheVoteRecords == null){
