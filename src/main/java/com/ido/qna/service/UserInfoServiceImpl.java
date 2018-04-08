@@ -10,6 +10,7 @@ import com.rainful.dao.SqlAppender;
 import com.rainful.util.HashMap;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.data.domain.PageImpl;
 import org.springframework.stereotype.Service;
 
@@ -25,6 +26,7 @@ public class UserInfoServiceImpl implements UserInfoService {
     @Autowired
     UserInfoRepo repo;
     @Autowired
+    @Qualifier("mysqlManager")
     EntityManager em;
     LoadingCache<String,Integer> openIdToUserId = CacheBuilder.newBuilder()
             .maximumSize(1000)
@@ -73,6 +75,8 @@ public class UserInfoServiceImpl implements UserInfoService {
                 .gender(user.getGender())
                 .avatarUrl(user.getAvatarUrl())
                 .province(user.getProvince())
+                .score(0)
+                .title("江湖小虾")
                 .build());
     }
 

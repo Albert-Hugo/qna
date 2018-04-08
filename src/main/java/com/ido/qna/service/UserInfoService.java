@@ -36,4 +36,6 @@ public interface UserInfoService {
 
 
     Integer getIdByOpenId(String openId);
+
+
 }
