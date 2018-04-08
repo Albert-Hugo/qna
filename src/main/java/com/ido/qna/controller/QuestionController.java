@@ -1,15 +1,21 @@
 package com.ido.qna.controller;
 
 import com.ido.qna.controller.response.ResponseDTO;
+import com.ido.qna.service.FileUploadService;
 import com.ido.qna.service.QuestionService;
 import com.ido.qna.service.ReplyService;
+import com.ido.qna.service.ZanService;
 import lombok.AllArgsConstructor;
 import lombok.Data;
+import lombok.EqualsAndHashCode;
 import lombok.NoArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Pageable;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.web.multipart.MultipartFile;
+
+import java.io.IOException;
 
 @RestController
 @RequestMapping("question")
@@ -19,10 +25,22 @@ public class QuestionController {
     QuestionService questionServ;
     @Autowired
     ReplyService replyService;
+@   Autowired
+    ZanService zanService;
+
+    @Autowired
+    FileUploadService uploadService;
+
+    @PostMapping("upload")
+    public ResponseDTO upload( Integer userId, MultipartFile file) throws IOException {
+        String filePath = uploadService.upload(file.getOriginalFilename(),file.getInputStream());
+        log.info(filePath);
+        return ResponseDTO.succss("ok");
+    }
 
     @PostMapping("ask")
-    public ResponseDTO ask(@RequestBody QuestionReq req) {
-        questionServ.ask(req);
+    public ResponseDTO ask( QuestionReq req, MultipartFile file) {
+        questionServ.ask(req,file);
         log.info(req.toString());
         return ResponseDTO.succss("ok");
     }
@@ -30,8 +48,13 @@ public class QuestionController {
     @PostMapping("reply")
     public ResponseDTO reply(@RequestBody ReplyReq req) {
         //TODO add reply ui in the front page
-        replyService.reply(req);
-        log.info(req.toString());
+        return ResponseDTO.succss(replyService.reply(req));
+    }
+
+    @PostMapping("zan")
+    public ResponseDTO zan(@RequestBody ZanReq req) {
+        //TODO add reply ui in the front page
+        zanService.zan(req);
         return ResponseDTO.succss("ok");
     }
 
@@ -64,6 +87,16 @@ public class QuestionController {
     }
 
 
+    @Data
+    @NoArgsConstructor
+    @AllArgsConstructor
+    @EqualsAndHashCode(exclude = {"id"})
+    public static class ZanReq {
+        Integer replyId;
+        Integer id;
+        Integer userId;
+
+    }
 
     @Data
     @NoArgsConstructor
@@ -85,7 +118,14 @@ public class QuestionController {
         String title;
         Integer topicId;
         Integer userId;
-        UserBasicInfo userBasicInfo;
+        String nickName;
+        String avatarUrl;
+        String phone;
+        byte gender;
+        String country;
+        String province;
+        String city;
+//        UserBasicInfo userBasicInfo;
 
 
     }

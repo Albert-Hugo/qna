@@ -25,4 +25,13 @@ public class UserInfo {
     private String country;
     private String province;
     private String city;
+    /**
+     * 积分
+     */
+    private Integer score;
+    /**
+     * 称谓
+     * todo 加上可以让用户用积分来自定义title 的功能
+     */
+    private String title;
 }
