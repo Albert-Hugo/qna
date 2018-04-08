@@ -37,7 +37,12 @@ CREATE TABLE `topic` (
 ) ENGINE=InnoDB AUTO_INCREMENT=2 DEFAULT CHARSET=utf8mb4;
 
 insert into topic (id,name )
-VALUES (1,'game');
+VALUES
+(1,'游戏'),
+ (2,'动漫'),
+ (3,'求职'),
+ (4,'生活');
+
 
 CREATE TABLE `reply` (
   `id` int(11) NOT NULL AUTO_INCREMENT,

@@ -1,10 +1,7 @@
 package com.ido.qna.controller;
 
 import com.ido.qna.controller.response.ResponseDTO;
-import com.ido.qna.service.FileUploadService;
-import com.ido.qna.service.QuestionService;
-import com.ido.qna.service.ReplyService;
-import com.ido.qna.service.ZanService;
+import com.ido.qna.service.*;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
@@ -30,6 +27,14 @@ public class QuestionController {
 
     @Autowired
     FileUploadService uploadService;
+    @Autowired
+    TopicService topicService;
+
+
+    @GetMapping("topics")
+    public ResponseDTO topics() throws IOException {
+        return ResponseDTO.succss(topicService.loadTopic());
+    }
 
     @PostMapping("upload")
     public ResponseDTO upload( Integer userId, MultipartFile file) throws IOException {
