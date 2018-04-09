@@ -154,7 +154,7 @@ public class QuestionServiceImpl implements QuestionService,FunctionInterface.Be
     @Override
     public Page<Map<String, Object>> getLatest(Pageable pageable) {
         StringBuilder sql = new StringBuilder("select q.id, q.title, q.content, q.create_time,q.read_count," +
-                "u.nick_name as userName , u.id as userId,  t.name as topicName from question q" +
+                "u.nick_name as userName , u.id as userId, u.gender , t.name as topicName from question q" +
                 " left join user_info u on q.user_id = u.id" +
                 " left join topic t on t.id = q.topic_id " +
                 " where 1 = 1 order by create_time desc");
