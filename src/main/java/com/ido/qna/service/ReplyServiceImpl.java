@@ -75,7 +75,7 @@ public class ReplyServiceImpl implements ReplyService {
 
     @Override
     public Page<Map<String,Object>> getReply(ReplyController.ReplyListReq replyReq) {
-        StringBuilder sql = new StringBuilder("select r.id, r.user_id, u.nick_name as userName" +
+        StringBuilder sql = new StringBuilder("select r.id, r.user_id, u.nick_name as userName, u.gender " +
                 " , u.avatar_url  " +
                 ", r.content ,r.create_time " +
                 "from reply r " +

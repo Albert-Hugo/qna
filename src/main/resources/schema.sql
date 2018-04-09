@@ -13,8 +13,8 @@ CREATE TABLE `user_info` (
   PRIMARY KEY (`id`)
 ) ENGINE=InnoDB AUTO_INCREMENT=8 DEFAULT CHARSET=utf8mb4;
 
-insert into user_info (id,gender,nick_name,openid)
-VALUES (1,1,'ido','dfsawer21434');
+insert into user_info (id,gender,nick_name,openid,title)
+VALUES (1,1,'ido','dfsawer21434','江湖小混混');
 
 CREATE TABLE `question` (
   `id` int(11) NOT NULL AUTO_INCREMENT,

@@ -95,9 +95,11 @@ public class UserInfoServiceImpl implements UserInfoService {
         StringBuilder sql2 = new StringBuilder(s);
         List<Map<String, Object>> replies = new SqlAppender(em, sql2)
                 .getResultList();
+        UserInfo userInfo = repo.findOne(userId);
         return HashMap.<String, Object>builder()
                 .put("questions", questions)
                 .put("replies", replies)
+                .put("userInfo", userInfo)
                 .build();
     }
 }

@@ -101,6 +101,10 @@ public class QuestionController {
         Integer id;
         Integer userId;
 
+        public ZanReq(Integer replyId, Integer userId) {
+            this.replyId = replyId;
+            this.userId = userId;
+        }
     }
 
     @Data

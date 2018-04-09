@@ -64,6 +64,11 @@ public class ZanServiceImpl implements  ZanService{
 
     @Override
     public boolean checkIfUserZanReply(int userId, int replyId) {
+        Set<QuestionController.ZanReq> cacheReqs = (Set<QuestionController.ZanReq>) zanRecordTable.get(replyId);
+        QuestionController.ZanReq zanReq = new QuestionController.ZanReq(replyId,userId);
+        if(cacheReqs !=null && cacheReqs.contains(zanReq)){
+            return true;
+        }
         return zanRepo.countByUserIdAndReplyId(userId,replyId)>0;
     }
 
