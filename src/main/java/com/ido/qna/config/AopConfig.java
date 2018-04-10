@@ -14,7 +14,7 @@ import org.springframework.context.annotation.Configuration;
 @Configuration
 @Aspect
 public class AopConfig {
-    private final Logger logger = LoggerFactory.getLogger(AopConfig.class);
+    private final Logger logger = LoggerFactory.getLogger("analytics");
 
     /**
      * Controller层切点
