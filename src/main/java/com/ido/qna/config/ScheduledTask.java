@@ -66,7 +66,7 @@ public class ScheduledTask {
     }
 
 
-    @Scheduled(fixedRate =  HOUR,initialDelay=MINS * 3)
+    @Scheduled(fixedRate =  MINS,initialDelay=MINS * 3)
     @Transactional(rollbackFor = Throwable.class)
     public void checkUserNewMessage() {
         LocalDateTime now = LocalDateTime.now();

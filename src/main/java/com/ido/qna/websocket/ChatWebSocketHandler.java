@@ -4,6 +4,7 @@ import com.alibaba.fastjson.JSON;
 import com.google.gson.Gson;
 import com.ido.qna.entity.UserMessage;
 import com.ido.qna.service.UserMessageService;
+import com.rainful.util.*;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -16,6 +17,7 @@ import org.springframework.web.socket.handler.TextWebSocketHandler;
 
 import java.io.IOException;
 import java.util.*;
+import java.util.HashMap;
 
 
 /**
@@ -37,19 +39,20 @@ public class ChatWebSocketHandler extends TextWebSocketHandler {
      */
     @Override
     protected void handleTextMessage(WebSocketSession session, TextMessage message) throws Exception {
+        /*session.sendMessage(new TextMessage(new Gson().toJson(Arrays.asList(UserMessage.builder()
+                .content("要发达 ")
+                .title("发达").build()))));
         String cont = message.getPayload();
         if (StringUtils.isEmpty(cont)) {
             return;
-        }
+        }*/
         //TODO find user message
         List<UserMessage> userMsg = userMessageService.findAll();
         if (userMsg == null || userMsg.size() == 0) {
             super.handleTextMessage(session, message);
             return;
         }
-        String outMsg = new Gson().toJson(com.rainful.util.HashMap.builder()
-                .put("messages", userMsg)
-                .build());
+        String outMsg = new Gson().toJson(userMsg);
 
         session.sendMessage(new TextMessage(outMsg));
         super.handleTextMessage(session, message);
