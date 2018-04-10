@@ -8,26 +8,22 @@ import lombok.NoArgsConstructor;
 import javax.persistence.*;
 import java.util.Date;
 
+/**
+ * @author ido
+ * Date: 2018/4/10
+ **/
 @Data
 @Entity
 @Builder
-@Table(name="question")
+@Table(name="user_message")
 @NoArgsConstructor
 @AllArgsConstructor
-public class Question {
+public class UserMessage {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     Integer id;
     private String title;
     private String content;
-    private String imgUrl;
-    private Integer topicId;
     private Integer userId;
-    private Integer readCount;
     private Date createTime;
-    private Date updateTime;
-    /**
-     * tag represent the reputation related to this question if already add to user
-     */
-    private Integer reputationSent;
 }

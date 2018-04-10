@@ -26,6 +26,7 @@ CREATE TABLE `question` (
   `update_time` datetime DEFAULT NULL,
   `user_id` int(11) DEFAULT NULL,
   `read_count` int(11) DEFAULT NULL,
+  `reputation_sent` int(11) DEFAULT 0 ,
   PRIMARY KEY (`id`)
 ) ENGINE=InnoDB AUTO_INCREMENT=10 DEFAULT CHARSET=utf8mb4;
 
@@ -66,5 +67,14 @@ CREATE TABLE `zan_record` (
   `id` int(11) unsigned NOT NULL AUTO_INCREMENT,
   `reply_id` int(11) DEFAULT NULL,
   `user_id` int(11) DEFAULT NULL,
+  PRIMARY KEY (`id`)
+) ENGINE=InnoDB AUTO_INCREMENT=16 DEFAULT CHARSET=utf8mb4;
+
+CREATE TABLE `user_message` (
+  `id` int(11) unsigned NOT NULL AUTO_INCREMENT,
+  `user_id` int(11) DEFAULT NULL,
+  `content` varchar(255) DEFAULT NULL,
+  `title` varchar(40) DEFAULT NULL,
+  `create_time` datetime DEFAULT NULL,
   PRIMARY KEY (`id`)
 ) ENGINE=InnoDB AUTO_INCREMENT=16 DEFAULT CHARSET=utf8mb4;

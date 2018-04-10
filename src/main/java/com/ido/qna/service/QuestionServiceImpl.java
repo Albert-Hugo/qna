@@ -60,7 +60,7 @@ public class QuestionServiceImpl implements QuestionService,FunctionInterface.Be
         // update the already exist record instead of save one more for those user already vote before
         likeRecordRepo.save(toSave);
 
-    }),"like-record-clean-up");
+    }),2*60,"like-record-clean-up");
 
 
     @Override
@@ -241,5 +241,14 @@ public class QuestionServiceImpl implements QuestionService,FunctionInterface.Be
         return null;
     }
 
+    @Override
+    public List<Map<String, Object>> checkQuestionsNeedToGenerateReputation() {
+        StringBuilder sql = new StringBuilder("select q.id, q.user_id from question q" +
+                " left join user_info u on q.user_id = u.id " +
+                " join (select qlr.question_id ,count(qlr.id) as count_id from question_like_record qlr group by qlr.question_id having count_id > 0 ) as t1 on t1.question_id = q.id ");
 
+        List<Map<String, Object>> result = new SqlAppender(em, sql)
+                .getResultList();
+        return result;
+    }
 }

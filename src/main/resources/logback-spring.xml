@@ -30,12 +30,25 @@
         </encoder>
     </appender>
 
+    <appender name="SCHEDULE-TASK" class="ch.qos.logback.core.rolling.RollingFileAppender">
+        <rollingPolicy class="ch.qos.logback.core.rolling.TimeBasedRollingPolicy">
+            <FileNamePattern>log/qna-schedule-log.%d{yyyy-MM-dd}.log</FileNamePattern>
+            <MaxHistory>30</MaxHistory>
+        </rollingPolicy>
+        <encoder>
+            <pattern>%d %-5level [%thread] %logger{0}: %msg%n</pattern>
+        </encoder>
+    </appender>
+
     <!-- additivity=false ensures analytics data only goes to the analytics log -->
     <logger name="analytics" level="DEBUG" additivity="false">
         <appender-ref ref="ANALYTICS-FILE"/>
     </logger>
 
-
+    <!-- additivity=false ensures analytics data only goes to the analytics log -->
+    <logger name="schedule_task" level="INFO" additivity="false">
+        <appender-ref ref="SCHEDULE-TASK"/>
+    </logger>
 
 
     <root level="INFO">

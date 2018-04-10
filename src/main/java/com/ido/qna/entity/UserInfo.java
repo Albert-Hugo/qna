@@ -26,7 +26,7 @@ public class UserInfo {
     private String province;
     private String city;
     /**
-     * 积分
+     * 声望积分
      */
     private Integer score;
     /**

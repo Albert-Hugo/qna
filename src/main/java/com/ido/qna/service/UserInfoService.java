@@ -2,7 +2,9 @@ package com.ido.qna.service;
 
 import com.ido.qna.QnaApplication;
 import com.ido.qna.entity.UserInfo;
+import com.ido.qna.service.domain.AddScoreParam;
 
+import java.util.List;
 import java.util.Map;
 
 public interface UserInfoService {
@@ -36,6 +38,8 @@ public interface UserInfoService {
 
 
     Integer getIdByOpenId(String openId);
+
+    void addScore(List<AddScoreParam> params);
 
 
 }

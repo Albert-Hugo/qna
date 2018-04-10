@@ -1,10 +1,12 @@
 package com.ido.qna.service;
 
 import com.ido.qna.controller.QuestionController;
+import com.ido.qna.entity.Question;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.web.multipart.MultipartFile;
 
+import java.util.List;
 import java.util.Map;
 
 public interface QuestionService {
@@ -16,4 +18,12 @@ public interface QuestionService {
     Map detail(QuestionController.DetailReq req);
 
     void vote(QuestionController.VoteReq req);
+
+    /**
+     *
+     * @return
+     */
+    List<Map<String, Object>> checkQuestionsNeedToGenerateReputation();
+
+
 }

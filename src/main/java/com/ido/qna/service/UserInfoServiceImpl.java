@@ -5,7 +5,10 @@ import com.google.common.cache.CacheLoader;
 import com.google.common.cache.LoadingCache;
 import com.ido.qna.QnaApplication;
 import com.ido.qna.entity.UserInfo;
+import com.ido.qna.entity.UserMessage;
 import com.ido.qna.repo.UserInfoRepo;
+import com.ido.qna.repo.UserMessageRepo;
+import com.ido.qna.service.domain.AddScoreParam;
 import com.rainful.dao.SqlAppender;
 import com.rainful.util.HashMap;
 import lombok.extern.slf4j.Slf4j;
@@ -13,8 +16,10 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.data.domain.PageImpl;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import javax.persistence.EntityManager;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 import java.util.concurrent.ExecutionException;
@@ -25,6 +30,10 @@ import java.util.concurrent.TimeUnit;
 public class UserInfoServiceImpl implements UserInfoService {
     @Autowired
     UserInfoRepo repo;
+    @Autowired
+    private UserMessageRepo userMessageRepo;
+    @Autowired
+    private QuestionService questionService;
     @Autowired
     @Qualifier("mysqlManager")
     EntityManager em;
@@ -101,5 +110,22 @@ public class UserInfoServiceImpl implements UserInfoService {
                 .put("replies", replies)
                 .put("userInfo", userInfo)
                 .build();
+    }
+
+    @Override
+    @Transactional(rollbackFor = Throwable.class)
+    public void addScore(List<AddScoreParam> params ) {
+        // add reputation to user
+        params.forEach(param->{
+            new SqlAppender(em)
+                    .update("user_info")
+                    .final_set("score","score",param.getScore())
+                    .update_where_1e1()
+                    .update_where_and("id","id",param.getUserId())
+                    .execute_update();
+
+        });
+
+
     }
 }
