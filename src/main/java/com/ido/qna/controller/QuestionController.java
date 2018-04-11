@@ -1,5 +1,6 @@
 package com.ido.qna.controller;
 
+import com.ido.qna.controller.request.ListQuestionReq;
 import com.ido.qna.controller.response.ResponseDTO;
 import com.ido.qna.service.*;
 import lombok.AllArgsConstructor;
@@ -70,9 +71,9 @@ public class QuestionController {
         return ResponseDTO.succss("vote ok");
     }
 
-    @GetMapping("latest")
-    public ResponseDTO latest(Pageable page) {
-        return ResponseDTO.succss(questionServ.getLatest(page));
+    @PostMapping("list")
+    public ResponseDTO list(@RequestBody  ListQuestionReq req) {
+        return ResponseDTO.succss(questionServ.findQuestions(req));
     }
 
     @GetMapping("detail")

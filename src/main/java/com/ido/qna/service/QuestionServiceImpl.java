@@ -1,6 +1,7 @@
 package com.ido.qna.service;
 
 import com.ido.qna.controller.QuestionController;
+import com.ido.qna.controller.request.ListQuestionReq;
 import com.ido.qna.entity.Question;
 import com.ido.qna.entity.QuestionLikeRecord;
 import com.ido.qna.repo.QuestionLikeRecordRepo;
@@ -152,14 +153,18 @@ public class QuestionServiceImpl implements QuestionService,FunctionInterface.Be
     }
 
     @Override
-    public Page<Map<String, Object>> getLatest(Pageable pageable) {
+    public Page<Map<String, Object>> findQuestions(ListQuestionReq req) {
+
         StringBuilder sql = new StringBuilder("select q.id, q.title, q.content, q.create_time,q.read_count," +
                 "u.nick_name as userName , u.id as userId, u.gender , t.name as topicName from question q" +
                 " left join user_info u on q.user_id = u.id" +
                 " left join topic t on t.id = q.topic_id " +
-                " where 1 = 1 order by create_time desc");
+                " where 1 = 1 ");
         List<Map<String, Object>> result = new SqlAppender(em, sql)
-                .limit(pageable.getOffset(), pageable.getPageSize())
+                .and("q.topic_id","topic_id",req.getTopicId())
+                .and("q.user_id","user_id",req.getUserId())
+                .orderBy(req.getPageQuery().getSort())
+                .limit(req.getPageQuery().getOffset(), req.getPageQuery().getLimit())
                 .getResultList();
 
         //get the latest read count from memory
@@ -174,14 +179,40 @@ public class QuestionServiceImpl implements QuestionService,FunctionInterface.Be
 
         });
 
-        StringBuilder countSql = new StringBuilder("select count(*) from question q " +
-                " left join user_info u on q.user_id = u.id" +
-                " left join topic t on t.id = q.topic_id " +
-                " where 1 = 1");
-        long total = new SqlAppender(em, countSql)
-                .count();
-        return new PageImpl<>(result, pageable, total);
+        return new PageImpl<>(result);
     }
+
+//    @Override
+//    public Page<Map<String, Object>> getLatest(Pageable pageable) {
+//        StringBuilder sql = new StringBuilder("select q.id, q.title, q.content, q.create_time,q.read_count," +
+//                "u.nick_name as userName , u.id as userId, u.gender , t.name as topicName from question q" +
+//                " left join user_info u on q.user_id = u.id" +
+//                " left join topic t on t.id = q.topic_id " +
+//                " where 1 = 1 order by create_time desc");
+//        List<Map<String, Object>> result = new SqlAppender(em, sql)
+//                .limit(pageable.getOffset(), pageable.getPageSize())
+//                .getResultList();
+//
+//        //get the latest read count from memory
+//        result.stream().forEach(m -> {
+//            Integer count = (Integer) detailReadCountTable.get((Integer) m.get("id"));
+//            if (count != null) {
+//                m.put("readCount", count);
+//
+//            } else {
+//                return;
+//            }
+//
+//        });
+//
+//        StringBuilder countSql = new StringBuilder("select count(*) from question q " +
+//                " left join user_info u on q.user_id = u.id" +
+//                " left join topic t on t.id = q.topic_id " +
+//                " where 1 = 1");
+//        long total = new SqlAppender(em, countSql)
+//                .count();
+//        return new PageImpl<>(result, pageable, total);
+//    }
 
     @Override
     public Map detail(QuestionController.DetailReq req) {

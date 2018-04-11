@@ -6,8 +6,10 @@ import com.google.common.cache.LoadingCache;
 import com.ido.qna.QnaApplication;
 import com.ido.qna.entity.UserInfo;
 import com.ido.qna.entity.UserMessage;
+import com.ido.qna.entity.UserTitle;
 import com.ido.qna.repo.UserInfoRepo;
 import com.ido.qna.repo.UserMessageRepo;
+import com.ido.qna.repo.UserTitleRepo;
 import com.ido.qna.service.domain.AddScoreParam;
 import com.rainful.dao.SqlAppender;
 import com.rainful.util.HashMap;
@@ -20,6 +22,7 @@ import org.springframework.transaction.annotation.Transactional;
 
 import javax.persistence.EntityManager;
 import java.util.ArrayList;
+import java.util.Date;
 import java.util.List;
 import java.util.Map;
 import java.util.concurrent.ExecutionException;
@@ -30,10 +33,10 @@ import java.util.concurrent.TimeUnit;
 public class UserInfoServiceImpl implements UserInfoService {
     @Autowired
     UserInfoRepo repo;
+
     @Autowired
-    private UserMessageRepo userMessageRepo;
-    @Autowired
-    private QuestionService questionService;
+    UserTitleRepo userTitleRepo;
+
     @Autowired
     @Qualifier("mysqlManager")
     EntityManager em;
@@ -127,5 +130,36 @@ public class UserInfoServiceImpl implements UserInfoService {
         });
 
 
+    }
+
+
+    @Override
+    public void changeTitle(Integer userId, Integer titleId) {
+        UserInfo userInfo = repo.findOne(userId);
+        UserTitle title = userTitleRepo.findOne(titleId);
+        userInfo.setTitle(title.getTitle());
+        repo.save(userInfo);
+
+    }
+
+    @Override
+    public void createTitle(Integer userId, String title) {
+        //TODO decide if user can create user defined title
+        UserInfo userInfo = repo.findOne(userId);
+        if(userInfo.getScore() < 1000){
+            return ;
+        }
+        userTitleRepo.save(UserTitle.builder()
+                .createTime(new Date())
+                .title(title)
+                .userId(userId)
+        .build());
+
+
+    }
+
+    @Override
+    public List<UserTitle> listAllUserTitle(Integer userId) {
+        return userTitleRepo.findByUserId(userId);
     }
 }

@@ -2,6 +2,7 @@ package com.ido.qna.service;
 
 import com.ido.qna.QnaApplication;
 import com.ido.qna.entity.UserInfo;
+import com.ido.qna.entity.UserTitle;
 import com.ido.qna.service.domain.AddScoreParam;
 
 import java.util.List;
@@ -40,6 +41,27 @@ public interface UserInfoService {
     Integer getIdByOpenId(String openId);
 
     void addScore(List<AddScoreParam> params);
+
+    /**
+     *
+     * @param userId
+     * @param titleId
+     */
+    void changeTitle(Integer userId, Integer titleId);
+
+    /**
+     *
+     * @param userId
+     * @param title
+     */
+    void createTitle(Integer userId, String title);
+
+    /**
+     *
+     * @param userId
+     * @return
+     */
+    List<UserTitle> listAllUserTitle(Integer userId);
 
 
 }
