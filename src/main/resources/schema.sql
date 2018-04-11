@@ -37,10 +37,11 @@ CREATE TABLE `topic` (
 
 insert into topic (id,name )
 VALUES
-(1,'游戏'),
- (2,'动漫'),
- (3,'求职'),
- (4,'生活');
+(1,'Game'),
+ (2,'Manga'),
+ (3,'Job'),
+ (4,'Joke'),
+ (5,'Lives');
 
 
 CREATE TABLE `reply` (

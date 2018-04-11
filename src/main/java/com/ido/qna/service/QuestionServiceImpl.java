@@ -1,6 +1,7 @@
 package com.ido.qna.service;
 
 import com.ido.qna.controller.QuestionController;
+import com.ido.qna.controller.request.HotQuestionReq;
 import com.ido.qna.controller.request.ListQuestionReq;
 import com.ido.qna.entity.Question;
 import com.ido.qna.entity.QuestionLikeRecord;
@@ -183,37 +184,33 @@ public class QuestionServiceImpl implements QuestionService,FunctionInterface.Be
         return new PageImpl<>(result);
     }
 
-//    @Override
-//    public Page<Map<String, Object>> getLatest(Pageable pageable) {
-//        StringBuilder sql = new StringBuilder("select q.id, q.title, q.content, q.create_time,q.read_count," +
-//                "u.nick_name as userName , u.id as userId, u.gender , t.name as topicName from question q" +
-//                " left join user_info u on q.user_id = u.id" +
-//                " left join topic t on t.id = q.topic_id " +
-//                " where 1 = 1 order by create_time desc");
-//        List<Map<String, Object>> result = new SqlAppender(em, sql)
-//                .limit(pageable.getOffset(), pageable.getPageSize())
-//                .getResultList();
-//
-//        //get the latest read count from memory
-//        result.stream().forEach(m -> {
-//            Integer count = (Integer) detailReadCountTable.get((Integer) m.get("id"));
-//            if (count != null) {
-//                m.put("readCount", count);
-//
-//            } else {
-//                return;
-//            }
-//
-//        });
-//
-//        StringBuilder countSql = new StringBuilder("select count(*) from question q " +
-//                " left join user_info u on q.user_id = u.id" +
-//                " left join topic t on t.id = q.topic_id " +
-//                " where 1 = 1");
-//        long total = new SqlAppender(em, countSql)
-//                .count();
-//        return new PageImpl<>(result, pageable, total);
-//    }
+    @Override
+    public Page<Map<String, Object>> hotestQuestions(HotQuestionReq req) {
+        StringBuilder sql = new StringBuilder("select distinct q.id " +
+                ",(select count(*) from reply r1 where r1.question_id = q.id) as readCount" +
+                " from question q join reply r  on r.question_id = q.id\n" +
+
+                " where 1 = 1 order by readCount ");
+        //TODO 这个SQL 只能用原生的来转换成map
+        List<Map<String, Object>> result = new SqlAppender(em, sql)
+                .limit(req.getPageQuery().getOffset(), req.getPageQuery().getLimit())
+                .getResultList();
+
+        //get the latest read count from memory
+        result.stream().forEach(m -> {
+            Integer count = (Integer) detailReadCountTable.get((Integer) m.get("id"));
+            if (count != null) {
+                m.put("readCount", count);
+
+            } else {
+                return;
+            }
+
+        });
+
+        return new PageImpl<>(result);
+    }
+
 
     @Override
     public Map detail(QuestionController.DetailReq req) {

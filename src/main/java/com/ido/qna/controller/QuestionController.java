@@ -1,5 +1,6 @@
 package com.ido.qna.controller;
 
+import com.ido.qna.controller.request.HotQuestionReq;
 import com.ido.qna.controller.request.ListQuestionReq;
 import com.ido.qna.controller.response.ResponseDTO;
 import com.ido.qna.service.*;
@@ -74,6 +75,11 @@ public class QuestionController {
     @PostMapping("list")
     public ResponseDTO list(@RequestBody  ListQuestionReq req) {
         return ResponseDTO.succss(questionServ.findQuestions(req));
+    }
+
+    @PostMapping("hot")
+    public ResponseDTO hotQuestions(@RequestBody HotQuestionReq req) {
+        return ResponseDTO.succss(questionServ.hotestQuestions(req));
     }
 
     @GetMapping("detail")
