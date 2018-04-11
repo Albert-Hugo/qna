@@ -76,10 +76,11 @@ public class ReplyServiceImpl implements ReplyService {
     @Override
     public Page<Map<String,Object>> getReply(ReplyController.ReplyListReq replyReq) {
         StringBuilder sql = new StringBuilder("select r.id, r.user_id, u.nick_name as userName, u.gender " +
-                " , u.avatar_url  " +
+                " , u.avatar_url , ut.title as userTitle ,ut.title_color as titleColor" +
                 ", r.content ,r.create_time " +
                 "from reply r " +
                 " join user_info u on u.id = r.user_id " +
+                " join user_title ut on ut.id = u.title_id " +
                 " where 1 = 1 ");
         List<Sorter> sorters = null;
         if(replyReq.getSorter() != null){

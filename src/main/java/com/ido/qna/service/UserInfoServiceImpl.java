@@ -1,14 +1,13 @@
 package com.ido.qna.service;
 
+import com.fasterxml.jackson.databind.ObjectMapper;
 import com.google.common.cache.CacheBuilder;
 import com.google.common.cache.CacheLoader;
 import com.google.common.cache.LoadingCache;
 import com.ido.qna.QnaApplication;
 import com.ido.qna.entity.UserInfo;
-import com.ido.qna.entity.UserMessage;
 import com.ido.qna.entity.UserTitle;
 import com.ido.qna.repo.UserInfoRepo;
-import com.ido.qna.repo.UserMessageRepo;
 import com.ido.qna.repo.UserTitleRepo;
 import com.ido.qna.service.domain.AddScoreParam;
 import com.rainful.dao.SqlAppender;
@@ -16,12 +15,10 @@ import com.rainful.util.HashMap;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
-import org.springframework.data.domain.PageImpl;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import javax.persistence.EntityManager;
-import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
 import java.util.Map;
@@ -88,7 +85,7 @@ public class UserInfoServiceImpl implements UserInfoService {
                 .avatarUrl(user.getAvatarUrl())
                 .province(user.getProvince())
                 .score(0)
-                .title("江湖小虾")
+                .titleId(1)
                 .build());
     }
 
@@ -108,10 +105,15 @@ public class UserInfoServiceImpl implements UserInfoService {
         List<Map<String, Object>> replies = new SqlAppender(em, sql2)
                 .getResultList();
         UserInfo userInfo = repo.findOne(userId);
+        Map<String,Object> user =
+                new ObjectMapper().convertValue(userInfo,Map.class);
+        UserTitle title  =  userTitleRepo.findOne(userInfo.getTitleId());
+        user.put("userTitle",title.getTitle());
+        user.put("titleColor",title.getTitleColor());
         return HashMap.<String, Object>builder()
                 .put("questions", questions)
                 .put("replies", replies)
-                .put("userInfo", userInfo)
+                .put("userInfo", user)
                 .build();
     }
 
@@ -136,8 +138,7 @@ public class UserInfoServiceImpl implements UserInfoService {
     @Override
     public void changeTitle(Integer userId, Integer titleId) {
         UserInfo userInfo = repo.findOne(userId);
-        UserTitle title = userTitleRepo.findOne(titleId);
-        userInfo.setTitle(title.getTitle());
+        userInfo.setTitleId(titleId);
         repo.save(userInfo);
 
     }

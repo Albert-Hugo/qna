@@ -9,12 +9,10 @@ CREATE TABLE `user_info` (
   `province` varchar(255) DEFAULT NULL,
   `avatar_url` varchar(255) DEFAULT NULL,
   `score` int(11) unsigned DEFAULT 0,
-  `title` varchar(20) DEFAULT NULL,
+  `title_id` int(11) unsigned DEFAULT NULL,
   PRIMARY KEY (`id`)
 ) ENGINE=InnoDB AUTO_INCREMENT=8 DEFAULT CHARSET=utf8mb4;
 
-insert into user_info (id,gender,nick_name,openid,title)
-VALUES (1,1,'ido','dfsawer21434','江湖小混混');
 
 CREATE TABLE `question` (
   `id` int(11) NOT NULL AUTO_INCREMENT,
@@ -84,6 +82,13 @@ CREATE TABLE `user_title` (
   `id` int(11) unsigned NOT NULL AUTO_INCREMENT,
   `user_id` int(11) DEFAULT NULL,
   `title` varchar(40) DEFAULT NULL,
+  `title_color` varchar(40) DEFAULT NULL,
   `create_time` datetime DEFAULT NULL,
   PRIMARY KEY (`id`)
 ) ENGINE=InnoDB AUTO_INCREMENT=1 DEFAULT CHARSET=utf8mb4;
+
+
+insert into user_title (id,user_id ,title,title_color)
+VALUES
+(1,1,'百晓通','#07c'),
+

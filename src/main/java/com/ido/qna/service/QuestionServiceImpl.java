@@ -156,8 +156,9 @@ public class QuestionServiceImpl implements QuestionService,FunctionInterface.Be
     public Page<Map<String, Object>> findQuestions(ListQuestionReq req) {
 
         StringBuilder sql = new StringBuilder("select q.id, q.title, q.content, q.create_time,q.read_count," +
-                "u.nick_name as userName , u.id as userId, u.gender , t.name as topicName from question q" +
+                "u.nick_name as userName , u.id as userId, u.gender ,ut.title as userTitle, ut.title_color as titleColor, t.name as topicName from question q" +
                 " left join user_info u on q.user_id = u.id" +
+                " join user_title ut on ut.id = u.title_id " +
                 " left join topic t on t.id = q.topic_id " +
                 " where 1 = 1 ");
         List<Map<String, Object>> result = new SqlAppender(em, sql)

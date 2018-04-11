@@ -24,5 +24,6 @@ public class UserTitle {
     Integer id;
     Integer userId;
     String title;
+    String titleColor;
     Date createTime;
 }

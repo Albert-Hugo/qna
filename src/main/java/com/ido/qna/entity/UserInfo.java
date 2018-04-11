@@ -33,5 +33,5 @@ public class UserInfo {
      * 称谓
      * todo 加上可以让用户用积分来自定义title 的功能
      */
-    private String title;
+    private Integer titleId;
 }
