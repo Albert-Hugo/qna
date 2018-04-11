@@ -94,7 +94,7 @@ public class UserInfoServiceImpl implements UserInfoService {
         StringBuilder sql = new StringBuilder("select  q.id , q.title,q.content,q.read_count from question q  where 1 = 1 ");
         List<Map<String, Object>> questions = new SqlAppender(em, sql)
                 .and("q.user_id", "userId", userId)
-                .orderBy("q.update_time", true,true)
+                .orderBy("updateTime",true)
                 .limit(0, 3)
                 .getResultList();
         String s = "select q.title,q.id\n" +
