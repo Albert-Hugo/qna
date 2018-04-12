@@ -39,14 +39,15 @@ public class ChatWebSocketHandler extends TextWebSocketHandler {
      */
     @Override
     protected void handleTextMessage(WebSocketSession session, TextMessage message) throws Exception {
-        /*session.sendMessage(new TextMessage(new Gson().toJson(Arrays.asList(UserMessage.builder()
-                .content("要发达 ")
-                .title("发达").build()))));
-        String cont = message.getPayload();
-        if (StringUtils.isEmpty(cont)) {
-            return;
-        }*/
-        //TODO find user message
+        //todo test code
+//        session.sendMessage(new TextMessage(new Gson().toJson(Arrays.asList(UserMessage.builder()
+//                .title("new message")
+//                .content("message content")
+//        .build()))));
+//
+//        session.close();
+
+//        //TODO find user message
         List<UserMessage> userMsg = userMessageService.findAll();
         if (userMsg == null || userMsg.size() == 0) {
             session.close();
