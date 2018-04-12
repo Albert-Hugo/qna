@@ -41,6 +41,7 @@ public class ChatWebSocketHandler extends TextWebSocketHandler {
     protected void handleTextMessage(WebSocketSession session, TextMessage message) throws Exception {
         //todo test code
 //        session.sendMessage(new TextMessage(new Gson().toJson(Arrays.asList(UserMessage.builder()
+//                .id(1)
 //                .title("new message")
 //                .content("message content")
 //        .build()))));
