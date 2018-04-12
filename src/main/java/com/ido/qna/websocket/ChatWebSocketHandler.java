@@ -49,6 +49,8 @@ public class ChatWebSocketHandler extends TextWebSocketHandler {
         //TODO find user message
         List<UserMessage> userMsg = userMessageService.findAll();
         if (userMsg == null || userMsg.size() == 0) {
+            session.close();
+            logger.info("no message to user , closing session");
             super.handleTextMessage(session, message);
             return;
         }

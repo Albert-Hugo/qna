@@ -46,6 +46,10 @@ public class QuestionServiceImpl implements QuestionService,FunctionInterface.Be
     @Autowired
     FileUploadService uploadService;
 
+    final String BASIC_QUESTION_RESULT_LIST = "q.id, q.title, q.content, q.create_time,q.read_count," +
+            "u.nick_name as userName , u.id as userId, u.gender ,ut.title as userTitle, ut.title_color as titleColor" +
+            ", t.name as topicName ";
+
     private CacheMap<Integer> detailReadCountTable = new CacheMap<>(new ConcurrentHashMap<>(10), this);
     private CacheMap<Integer> likeRecordTable = new CacheMap<>(new ConcurrentHashMap<>(10), (toRemove->{
         if(toRemove== null || toRemove.size() == 0){
@@ -156,8 +160,8 @@ public class QuestionServiceImpl implements QuestionService,FunctionInterface.Be
     @Override
     public Page<Map<String, Object>> findQuestions(ListQuestionReq req) {
 
-        StringBuilder sql = new StringBuilder("select q.id, q.title, q.content, q.create_time,q.read_count," +
-                "u.nick_name as userName , u.id as userId, u.gender ,ut.title as userTitle, ut.title_color as titleColor, t.name as topicName from question q" +
+        StringBuilder sql = new StringBuilder("select " +BASIC_QUESTION_RESULT_LIST+
+                " from question q" +
                 " left join user_info u on q.user_id = u.id" +
                 " join user_title ut on ut.id = u.title_id " +
                 " left join topic t on t.id = q.topic_id " +
@@ -186,13 +190,23 @@ public class QuestionServiceImpl implements QuestionService,FunctionInterface.Be
 
     @Override
     public Page<Map<String, Object>> hotestQuestions(HotQuestionReq req) {
-        StringBuilder sql = new StringBuilder("select distinct q.id " +
-                ",(select count(*) from reply r1 where r1.question_id = q.id) as readCount" +
-                " from question q join reply r  on r.question_id = q.id\n" +
-
-                " where 1 = 1 order by readCount ");
-        //TODO 这个SQL 只能用原生的来转换成map
+        //"q.id, q.title, q.content, q.create_time,q.read_count," +
+//        "u.nick_name as userName , u.id as userId, u.gender ,ut.title as userTitle, ut.title_color as titleColor" +
+//                ", t.name as topicName "
+        StringBuilder sql = new StringBuilder("select distinct  " +BASIC_QUESTION_RESULT_LIST+
+                ",(select count(*) from reply r1 where r1.question_id = q.id) as replyCount" +
+                " from question q " +
+                " left join reply r  on r.question_id = q.id\n" +
+                " left join user_info u on q.user_id = u.id" +
+                " join user_title ut on ut.id = u.title_id " +
+                " left join topic t on t.id = q.topic_id " +
+                " where 1 = 1 order by replyCount ");
         List<Map<String, Object>> result = new SqlAppender(em, sql)
+                .ownDefinedColumnAlias(Arrays.asList("id", "title"
+                        , "content", "createTime", "readCount"
+                        , "userName", "userId", "gender"
+                        , "userTitle", "titleColor", "topicName"
+                        ,"replyCount"))
                 .limit(req.getPageQuery().getOffset(), req.getPageQuery().getLimit())
                 .getResultList();
 
