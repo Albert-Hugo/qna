@@ -200,7 +200,7 @@ public class QuestionServiceImpl implements QuestionService,FunctionInterface.Be
                 " left join user_info u on q.user_id = u.id" +
                 " join user_title ut on ut.id = u.title_id " +
                 " left join topic t on t.id = q.topic_id " +
-                " where 1 = 1 order by replyCount ");
+                " where 1 = 1 order by replyCount DESC");
         List<Map<String, Object>> result = new SqlAppender(em, sql)
                 .ownDefinedColumnAlias(Arrays.asList("id", "title"
                         , "content", "createTime", "readCount"
