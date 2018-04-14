@@ -10,6 +10,7 @@ CREATE TABLE `user_info` (
   `avatar_url` varchar(255) DEFAULT NULL,
   `score` int(11) unsigned DEFAULT 0,
   `title_id` int(11) unsigned DEFAULT NULL,
+  `update_time` DATE DEFAULT NULL,
   PRIMARY KEY (`id`)
 ) ENGINE=InnoDB AUTO_INCREMENT=8 DEFAULT CHARSET=utf8mb4;
 
@@ -91,5 +92,5 @@ CREATE TABLE `user_title` (
 
 insert into user_title (id,user_id ,title,title_color)
 VALUES
-(1,1,'百晓通','#07c'),
+(1,1,'百晓通','#07c')
 
