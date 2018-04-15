@@ -6,6 +6,7 @@ import lombok.Data;
 import lombok.NoArgsConstructor;
 
 import javax.persistence.*;
+import java.util.Date;
 
 @Data
 @Entity
@@ -25,6 +26,7 @@ public class UserInfo {
     private String country;
     private String province;
     private String city;
+    private Date updateTime;
     /**
      * 声望积分
      */

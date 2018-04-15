@@ -74,6 +74,10 @@ public class ZanServiceImpl implements  ZanService{
 
     @Override
     public long countByReplyId(int replyId) {
+        Set<QuestionController.ZanReq> cacheReqs = (Set<QuestionController.ZanReq>) zanRecordTable.get(replyId);
+        if(cacheReqs != null){
+            return cacheReqs.size();
+        }
         return zanRepo.countByReplyId(replyId);
     }
 }

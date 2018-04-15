@@ -5,6 +5,7 @@ import com.ido.qna.controller.request.HotQuestionReq;
 import com.ido.qna.controller.request.ListQuestionReq;
 import com.ido.qna.entity.Question;
 import com.ido.qna.entity.QuestionLikeRecord;
+import com.ido.qna.entity.UserInfo;
 import com.ido.qna.repo.QuestionLikeRecordRepo;
 import com.ido.qna.repo.QuestionRepo;
 import com.ido.qna.repo.UserInfoRepo;
@@ -120,18 +121,24 @@ public class QuestionServiceImpl implements QuestionService,FunctionInterface.Be
 
     }
 
-
+    private boolean alreadyUpdatedToday(int userId){
+        UserInfo userInfo = useRepo.findOne(userId);
+        log.info(userInfo.toString());
+        return useRepo.countByIdAndUpdateTime(userId,new Date())>0;
+    }
     @Override
     @Transactional(rollbackFor = Throwable.class)
     public void ask(QuestionController.QuestionReq req,MultipartFile file) {
         Date now = new Date();
-        if (toUpdateUserInfo) {
+        if (toUpdateUserInfo && !alreadyUpdatedToday(req.getUserId())) {
+            log.info("update user info: {} ",req.toString());
             new SqlAppender(em)
                     .update("user_info")
                     .set("nick_name", "nickName", req.getNickName())
                     .set("avatar_url", "avatar", req.getAvatarUrl())
                     .set("gender", "gender", req.getGender())
                     .set("phone", "phone", req.getPhone())
+                    .final_set("update_time", "update_time", new Date())
                     .update_where_1e1()
                     .update_where_and("id", "id", req.getUserId())
                     .execute_update();
@@ -163,7 +170,7 @@ public class QuestionServiceImpl implements QuestionService,FunctionInterface.Be
         StringBuilder sql = new StringBuilder("select " +BASIC_QUESTION_RESULT_LIST+
                 " from question q" +
                 " left join user_info u on q.user_id = u.id" +
-                " join user_title ut on ut.id = u.title_id " +
+                " left join user_title ut on ut.id = u.title_id " +
                 " left join topic t on t.id = q.topic_id " +
                 " where 1 = 1 ");
         List<Map<String, Object>> result = new SqlAppender(em, sql)
@@ -200,7 +207,7 @@ public class QuestionServiceImpl implements QuestionService,FunctionInterface.Be
                 " left join user_info u on q.user_id = u.id" +
                 " join user_title ut on ut.id = u.title_id " +
                 " left join topic t on t.id = q.topic_id " +
-                " where 1 = 1 order by replyCount ");
+                " where 1 = 1 order by replyCount DESC");
         List<Map<String, Object>> result = new SqlAppender(em, sql)
                 .ownDefinedColumnAlias(Arrays.asList("id", "title"
                         , "content", "createTime", "readCount"

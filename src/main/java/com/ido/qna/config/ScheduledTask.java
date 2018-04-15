@@ -57,7 +57,7 @@ public class ScheduledTask {
     public void checkDate() {
         log.info("checking if to update user info when asking question");
         int day = LocalDateTime.now().getDayOfWeek().get(DAY_OF_WEEK);
-        if(day == 1 || day == 5){
+        if(day == 1 || day == 6){
             log.info("today is day {}, update user info ",day);
             toUpdateUserInfo = true;
         }else{

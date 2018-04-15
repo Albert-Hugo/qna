@@ -80,6 +80,8 @@ public class MysqlConfig {
         dataSource.setUsername("sa");
         dataSource.setPassword("sa");
 
+        System.setProperty("test","true");
+
         return dataSource;
     }
 

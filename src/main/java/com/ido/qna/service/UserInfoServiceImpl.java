@@ -37,15 +37,15 @@ public class UserInfoServiceImpl implements UserInfoService {
     @Autowired
     @Qualifier("mysqlManager")
     EntityManager em;
-    LoadingCache<String,Integer> openIdToUserId = CacheBuilder.newBuilder()
+    LoadingCache<String, Integer> openIdToUserId = CacheBuilder.newBuilder()
             .maximumSize(1000)
             .expireAfterAccess(5, TimeUnit.MINUTES)
             .build(new CacheLoader<String, Integer>() {
-        @Override
-        public Integer load(String s) throws Exception {
-            return repo.getIdByOpenId(s);
-        }
-    });
+                @Override
+                public Integer load(String s) throws Exception {
+                    return repo.getIdByOpenId(s);
+                }
+            });
 
 
     @Override
@@ -54,13 +54,13 @@ public class UserInfoServiceImpl implements UserInfoService {
     }
 
     @Override
-    public Integer getIdByOpenId(String id)  {
+    public Integer getIdByOpenId(String id) {
         //here to cache the login result , for frequency login will be a bottle neck for this system
         try {
             return openIdToUserId.get(id);
         } catch (ExecutionException e) {
-            log.error(e.getMessage(),e);
-        }catch (CacheLoader.InvalidCacheLoadException e){
+            log.error(e.getMessage(), e);
+        } catch (CacheLoader.InvalidCacheLoadException e) {
             log.warn(e.getMessage());
         }
         return null;
@@ -94,22 +94,24 @@ public class UserInfoServiceImpl implements UserInfoService {
         StringBuilder sql = new StringBuilder("select  q.id , q.title,q.content,q.read_count from question q  where 1 = 1 ");
         List<Map<String, Object>> questions = new SqlAppender(em, sql)
                 .and("q.user_id", "userId", userId)
-                .orderBy("updateTime",true)
+                .orderBy("updateTime", true)
                 .limit(0, 3)
                 .getResultList();
         String s = "select q.title,q.id\n" +
                 "from question q " +
-                "join ( select r.question_id as qid  , max(r.create_time) as create_time  from reply r where r.user_id = "+userId+" group by r.question_id  ) as t1 on t1.qid = q.id " +
+                "join ( select r.question_id as qid  , max(r.create_time) as create_time  from reply r where r.user_id = " + userId + " group by r.question_id  ) as t1 on t1.qid = q.id " +
                 " where 1 = 1 order by t1.create_time desc  \n";
         StringBuilder sql2 = new StringBuilder(s);
         List<Map<String, Object>> replies = new SqlAppender(em, sql2)
                 .getResultList();
         UserInfo userInfo = repo.findOne(userId);
-        Map<String,Object> user =
-                new ObjectMapper().convertValue(userInfo,Map.class);
-        UserTitle title  =  userTitleRepo.findOne(userInfo.getTitleId());
-        user.put("userTitle",title.getTitle());
-        user.put("titleColor",title.getTitleColor());
+        Map<String, Object> user =
+                new ObjectMapper().convertValue(userInfo, Map.class);
+        UserTitle title = userTitleRepo.findOne(userInfo.getTitleId());
+        if (title != null) {
+            user.put("titleColor", title.getTitleColor());
+            user.put("userTitle", title.getTitle());
+        }
         return HashMap.<String, Object>builder()
                 .put("questions", questions)
                 .put("replies", replies)
@@ -119,14 +121,14 @@ public class UserInfoServiceImpl implements UserInfoService {
 
     @Override
     @Transactional(rollbackFor = Throwable.class)
-    public void addScore(List<AddScoreParam> params ) {
+    public void addScore(List<AddScoreParam> params) {
         // add reputation to user
-        params.forEach(param->{
+        params.forEach(param -> {
             new SqlAppender(em)
                     .update("user_info")
-                    .final_set("score","score",param.getScore())
+                    .final_set("score", "score", param.getScore())
                     .update_where_1e1()
-                    .update_where_and("id","id",param.getUserId())
+                    .update_where_and("id", "id", param.getUserId())
                     .execute_update();
 
         });
@@ -147,14 +149,14 @@ public class UserInfoServiceImpl implements UserInfoService {
     public void createTitle(Integer userId, String title) {
         //TODO decide if user can create user defined title
         UserInfo userInfo = repo.findOne(userId);
-        if(userInfo.getScore() < 1000){
-            return ;
+        if (userInfo.getScore() < 1000) {
+            return;
         }
         userTitleRepo.save(UserTitle.builder()
                 .createTime(new Date())
                 .title(title)
                 .userId(userId)
-        .build());
+                .build());
 
 
     }
