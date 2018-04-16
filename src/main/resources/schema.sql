@@ -79,6 +79,13 @@ CREATE TABLE `user_message` (
   PRIMARY KEY (`id`)
 ) ENGINE=InnoDB AUTO_INCREMENT=16 DEFAULT CHARSET=utf8mb4;
 
+CREATE TABLE `sign_in_record` (
+  `id` int(11) unsigned NOT NULL AUTO_INCREMENT,
+  `user_id` int(11) DEFAULT NULL,
+  `sign_in_date` DATE DEFAULT NULL,
+  PRIMARY KEY (`id`)
+) ENGINE=InnoDB AUTO_INCREMENT=1 DEFAULT CHARSET=utf8mb4;
+
 
 CREATE TABLE `user_title` (
   `id` int(11) unsigned NOT NULL AUTO_INCREMENT,
@@ -92,5 +99,5 @@ CREATE TABLE `user_title` (
 
 insert into user_title (id,user_id ,title,title_color)
 VALUES
-(1,1,'百晓通','#07c')
+(1,1,'百晓通','#07c');
 

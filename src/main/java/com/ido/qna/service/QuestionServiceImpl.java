@@ -47,8 +47,8 @@ public class QuestionServiceImpl implements QuestionService,FunctionInterface.Be
     @Autowired
     FileUploadService uploadService;
 
-    final String BASIC_QUESTION_RESULT_LIST = "q.id, q.title, q.content, q.create_time,q.read_count," +
-            "u.nick_name as userName , u.id as userId, u.gender ,ut.title as userTitle, ut.title_color as titleColor" +
+    final String BASIC_QUESTION_RESULT_LIST = "q.id, q.title, q.content, q.create_time,q.read_count,q.img_url as imgUrl" +
+            ", u.nick_name as userName , u.id as userId, u.gender ,ut.title as userTitle, ut.title_color as titleColor" +
             ", t.name as topicName ";
 
     private CacheMap<Integer> detailReadCountTable = new CacheMap<>(new ConcurrentHashMap<>(10), this);
@@ -146,7 +146,7 @@ public class QuestionServiceImpl implements QuestionService,FunctionInterface.Be
         String filePath = null;
         if(file != null){
             try {
-                filePath = uploadService.upload(file.getOriginalFilename(),file.getInputStream());
+                filePath = uploadService.upload(file.getOriginalFilename(),file.getInputStream(),req.getUserId());
             } catch (IOException e) {
                 e.printStackTrace();
             }

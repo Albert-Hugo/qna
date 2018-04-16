@@ -48,4 +48,17 @@ public class UserInfoController {
         userInfoService.createTitle(userId,title);
         return ResponseDTO.succss(null);
     }
+
+
+    /**
+     * 签到
+     * @param userId
+     * @return
+     */
+    @GetMapping("/signIn")
+    public ResponseDTO signIn(int userId) {
+        userInfoService.signIn(userId);
+        return ResponseDTO.succss("sign in success");
+    }
+
 }

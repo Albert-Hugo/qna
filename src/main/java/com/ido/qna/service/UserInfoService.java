@@ -63,5 +63,9 @@ public interface UserInfoService {
      */
     List<UserTitle> listAllUserTitle(Integer userId);
 
-
+    /**
+     * 签到
+     * @param userId
+     */
+    void signIn(int userId);
 }

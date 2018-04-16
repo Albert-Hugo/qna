@@ -5,8 +5,10 @@ import com.google.common.cache.CacheBuilder;
 import com.google.common.cache.CacheLoader;
 import com.google.common.cache.LoadingCache;
 import com.ido.qna.QnaApplication;
+import com.ido.qna.entity.SignInRecord;
 import com.ido.qna.entity.UserInfo;
 import com.ido.qna.entity.UserTitle;
+import com.ido.qna.repo.SignInRecordRepo;
 import com.ido.qna.repo.UserInfoRepo;
 import com.ido.qna.repo.UserTitleRepo;
 import com.ido.qna.service.domain.AddScoreParam;
@@ -33,6 +35,9 @@ public class UserInfoServiceImpl implements UserInfoService {
 
     @Autowired
     UserTitleRepo userTitleRepo;
+
+    @Autowired
+    SignInRecordRepo signInRecordRepo;
 
     @Autowired
     @Qualifier("mysqlManager")
@@ -91,16 +96,19 @@ public class UserInfoServiceImpl implements UserInfoService {
 
     @Override
     public Map personalInfo(Integer userId) {
+        //获取最近用户自己发的帖子
         StringBuilder sql = new StringBuilder("select  q.id , q.title,q.content,q.read_count from question q  where 1 = 1 ");
         List<Map<String, Object>> questions = new SqlAppender(em, sql)
                 .and("q.user_id", "userId", userId)
                 .orderBy("updateTime", true)
                 .limit(0, 3)
                 .getResultList();
+
+        //获取最近评论的信息,限制5条
         String s = "select q.title,q.id\n" +
                 "from question q " +
                 "join ( select r.question_id as qid  , max(r.create_time) as create_time  from reply r where r.user_id = " + userId + " group by r.question_id  ) as t1 on t1.qid = q.id " +
-                " where 1 = 1 order by t1.create_time desc  \n";
+                " where 1 = 1 order by t1.create_time desc limit 0, 5 \n";
         StringBuilder sql2 = new StringBuilder(s);
         List<Map<String, Object>> replies = new SqlAppender(em, sql2)
                 .getResultList();
@@ -164,5 +172,30 @@ public class UserInfoServiceImpl implements UserInfoService {
     @Override
     public List<UserTitle> listAllUserTitle(Integer userId) {
         return userTitleRepo.findByUserId(userId);
+    }
+
+    @Override
+    @Transactional(rollbackFor = Throwable.class)
+    public void signIn(int userId) {
+        UserInfo userInfo = repo.findOne(userId);
+        if(userInfo == null){
+            return ;
+        }
+        //查看用户今天是否已经签到过
+        Date today = new Date();
+        int c = signInRecordRepo.countByUserIdAndSignInDate(userId,today);
+        if(c > 0){
+            log.info("user:{} already sign in today ",userId);
+            return ;
+        }
+        //增加 5 声望
+        userInfo.setScore(userInfo.getScore() + 5);
+
+        repo.save(userInfo);
+
+        signInRecordRepo.save(SignInRecord.builder()
+                .userId(userId)
+                .signInDate(today)
+        .build());
     }
 }

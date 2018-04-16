@@ -40,7 +40,7 @@ public class QuestionController {
 
     @PostMapping("upload")
     public ResponseDTO upload( Integer userId, MultipartFile file) throws IOException {
-        String filePath = uploadService.upload(file.getOriginalFilename(),file.getInputStream());
+        String filePath = uploadService.upload(file.getOriginalFilename(),file.getInputStream(),userId);
         log.info(filePath);
         return ResponseDTO.succss("ok");
     }

@@ -1,22 +1,25 @@
 package com.ido.qna.service;
 
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 
-import java.io.BufferedInputStream;
-import java.io.FileOutputStream;
-import java.io.IOException;
-import java.io.InputStream;
+import java.io.*;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
+import java.time.LocalDate;
+import java.util.Date;
 
 @Service
 @Slf4j
 public class FileUploadServiceLocalStoreImpl implements FileUploadService {
-    private final String BASE_DIR = "/Users/rainful/Documents/imgs/";
+    @Value("${storage.dir}")
+    private  String BASE_DIR ;
+    @Value("${static-file-host}")
+    private  String STATIC_FILE_HOST ;
 
-    public String upload(String fileName, InputStream is) throws IOException {
+    public String upload(String fileName, InputStream is,Integer userId) throws IOException {
         if(fileName==null || fileName.equals("")){
             throw new IllegalArgumentException("file name is null or empty");
         }
@@ -24,11 +27,23 @@ public class FileUploadServiceLocalStoreImpl implements FileUploadService {
             throw new IllegalArgumentException("input stream can not be null");
         }
         is = new BufferedInputStream(is);
-        log.info(fileName);
-        String absPath = BASE_DIR + fileName;
+//        log.info(fileName);
+        String accessPrefix = userId+"/" + LocalDate.now()+"/";
+        log.info(BASE_DIR +accessPrefix);
+        Path userDir = Paths.get(BASE_DIR +userId);
+        if(!Files.exists(userDir)){
+            Files.createDirectory(userDir);
+        }
+        String destinationDir  = BASE_DIR +accessPrefix;
+        Path desDir = Paths.get(destinationDir);
+        if(!Files.exists(desDir)){
+            Files.createDirectory(desDir);
+        }
+        String absPath = destinationDir +"/" +fileName;
         Path dir = Paths.get(absPath);
         if (!Files.exists(dir)) {
             Files.createFile(dir);
+            log.info("file store in {}",absPath);
         }
 
         FileOutputStream fos = new FileOutputStream(dir.toFile());
@@ -42,8 +57,8 @@ public class FileUploadServiceLocalStoreImpl implements FileUploadService {
         if(is!=null){
             is.close();
         }
-
-        return "imgs/"+fileName;
+        //the file is stored in the  BASE_DIR/fileName
+        return STATIC_FILE_HOST+accessPrefix+fileName;
     }
 
 }
