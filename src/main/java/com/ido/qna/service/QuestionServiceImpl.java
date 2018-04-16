@@ -48,7 +48,7 @@ public class QuestionServiceImpl implements QuestionService,FunctionInterface.Be
     FileUploadService uploadService;
 
     final String BASIC_QUESTION_RESULT_LIST = "q.id, q.title, q.content, q.create_time,q.read_count,q.img_url as imgUrl" +
-            ", u.nick_name as userName , u.id as userId, u.gender ,ut.title as userTitle, ut.title_color as titleColor" +
+            ", u.avatar_url, u.nick_name as userName , u.id as userId, u.gender ,ut.title as userTitle, ut.title_color as titleColor" +
             ", t.name as topicName ";
 
     private CacheMap<Integer> detailReadCountTable = new CacheMap<>(new ConcurrentHashMap<>(10), this);
@@ -186,9 +186,8 @@ public class QuestionServiceImpl implements QuestionService,FunctionInterface.Be
             if (count != null) {
                 m.put("readCount", count);
 
-            } else {
-                return;
             }
+            m.put("createTime",DateUtil.toYyyyMMdd_HHmmss((Date) m.get("createTime")));
 
         });
 
