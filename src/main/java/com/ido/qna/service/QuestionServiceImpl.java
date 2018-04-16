@@ -46,6 +46,8 @@ public class QuestionServiceImpl implements QuestionService,FunctionInterface.Be
     QuestionLikeRecordRepo likeRecordRepo;
     @Autowired
     FileUploadService uploadService;
+    @Autowired
+    ReplyService replyService;
 
     final String BASIC_QUESTION_RESULT_LIST = "q.id, q.title, q.content, q.create_time,q.read_count,q.img_url as imgUrl" +
             ", u.avatar_url, u.nick_name as userName , u.id as userId, u.gender ,ut.title as userTitle, ut.title_color as titleColor" +
@@ -181,17 +183,23 @@ public class QuestionServiceImpl implements QuestionService,FunctionInterface.Be
                 .getResultList();
 
         //get the latest read count from memory
+        addReturnVal(result);
+
+        return new PageImpl<>(result);
+    }
+
+    private void addReturnVal(List<Map<String, Object>> result) {
         result.stream().forEach(m -> {
-            Integer count = (Integer) detailReadCountTable.get((Integer) m.get("id"));
+            int id = (int) m.get("id");
+            Integer count = (Integer) detailReadCountTable.get(id);
             if (count != null) {
                 m.put("readCount", count);
 
             }
-            m.put("createTime",DateUtil.toYyyyMMdd_HHmmss((Date) m.get("createTime")));
+            m.put("replyCount",replyService.getReplyCount(id));
+            m.put("createTime", DateUtil.toYyyyMMdd_HHmmss((Date) m.get("createTime")));
 
         });
-
-        return new PageImpl<>(result);
     }
 
     @Override
@@ -217,16 +225,7 @@ public class QuestionServiceImpl implements QuestionService,FunctionInterface.Be
                 .getResultList();
 
         //get the latest read count from memory
-        result.stream().forEach(m -> {
-            Integer count = (Integer) detailReadCountTable.get((Integer) m.get("id"));
-            if (count != null) {
-                m.put("readCount", count);
-
-            } else {
-                return;
-            }
-
-        });
+        addReturnVal(result);
 
         return new PageImpl<>(result);
     }
