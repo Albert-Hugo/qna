@@ -190,13 +190,14 @@ public class QuestionServiceImpl implements QuestionService,FunctionInterface.Be
 
     private void addReturnVal(List<Map<String, Object>> result) {
         result.stream().forEach(m -> {
-            int id = (int) m.get("id");
-            Integer count = (Integer) detailReadCountTable.get(id);
+            int questionId = (int) m.get("id");
+            Integer count = (Integer) detailReadCountTable.get(questionId);
             if (count != null) {
                 m.put("readCount", count);
 
             }
-            m.put("replyCount",replyService.getReplyCount(id));
+            m.put("replyCount",replyService.getReplyCount(questionId));
+            m.put("voteCount",getVoteCount(questionId));
             m.put("createTime", DateUtil.toYyyyMMdd_HHmmss((Date) m.get("createTime")));
 
         });
@@ -245,24 +246,12 @@ public class QuestionServiceImpl implements QuestionService,FunctionInterface.Be
         List<Map<String, Object>> result = new SqlAppender(em, sql)
                 .and("q.id", "id", Integer.valueOf(questionId))
                 .getResultList();
+
+        //decide if the login user like this post or not
         QuestionLikeRecord likeRecord = likeRecordRepo.findByUserIdAndQuestionId(userId,questionId);
 
-        // get the vote cache from cache table ,if not exist , fetch it from db ,and store to cache
-        CacheVoteRecords cacheVoteRecords = (CacheVoteRecords) likeRecordTable.get(questionId);
-        int voteCount = 0;
-        if(cacheVoteRecords == null){
-            int likeC = likeRecordRepo.countByQuestionIdAndLiked(questionId,true);
-            int disLikeC = likeRecordRepo.countByQuestionIdAndLiked(questionId,false);
-            voteCount = likeC - disLikeC;
-            cacheVoteRecords = CacheVoteRecords.builder()
-                    //only need to fetch the count
-                    .voteCount(voteCount)
-                    .voteRecords(new HashSet<>(0))
-                    .build();
-            likeRecordTable.put(questionId,cacheVoteRecords);
-        }else{
-            voteCount = cacheVoteRecords.getVoteCount();
-        }
+
+        int voteCount = getVoteCount(questionId);
 
 
         final Integer vc = Integer.valueOf(voteCount);
@@ -287,6 +276,31 @@ public class QuestionServiceImpl implements QuestionService,FunctionInterface.Be
             return m;
         }
         return null;
+    }
+
+    /**
+     * get the vote count for question
+     * @param questionId question id
+     * @return (like - disLike)
+     */
+    private int getVoteCount(int questionId) {
+        // get the vote cache from cache table ,if not exist , fetch it from db ,and store to cache
+        CacheVoteRecords cacheVoteRecords = (CacheVoteRecords) likeRecordTable.get(questionId);
+        int voteCount = 0;
+        if(cacheVoteRecords == null){
+            int likeC = likeRecordRepo.countByQuestionIdAndLiked(questionId,true);
+            int disLikeC = likeRecordRepo.countByQuestionIdAndLiked(questionId,false);
+            voteCount = likeC - disLikeC;
+            cacheVoteRecords = CacheVoteRecords.builder()
+                    //only need to fetch the count
+                    .voteCount(voteCount)
+                    .voteRecords(new HashSet<>(0))
+                    .build();
+            likeRecordTable.put(questionId,cacheVoteRecords);
+        }else{
+            voteCount = cacheVoteRecords.getVoteCount();
+        }
+        return voteCount;
     }
 
     @Override
