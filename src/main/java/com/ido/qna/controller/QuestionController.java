@@ -82,6 +82,12 @@ public class QuestionController {
         return ResponseDTO.succss(questionServ.hotestQuestions(req));
     }
 
+    @DeleteMapping("delete")
+    public ResponseDTO delete(Integer userId, Integer questionId){
+        questionServ.delete(userId,questionId);
+        return ResponseDTO.succss(null);
+    }
+
     @GetMapping("detail")
     public ResponseDTO detail(DetailReq req) {
         return ResponseDTO.succss(questionServ.detail(req));
