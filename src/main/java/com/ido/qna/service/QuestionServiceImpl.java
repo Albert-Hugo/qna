@@ -49,7 +49,7 @@ public class QuestionServiceImpl implements QuestionService,FunctionInterface.Be
     @Autowired
     ReplyService replyService;
 
-    final String BASIC_QUESTION_RESULT_LIST = "q.id, q.title, q.content, q.create_time,q.read_count,q.img_url as imgUrl" +
+    final String BASIC_QUESTION_RESULT_LIST = "q.id, q.title, q.content, q.create_time,q.read_count" +
             ", u.avatar_url, u.nick_name as userName , u.id as userId, u.gender ,ut.title as userTitle, ut.title_color as titleColor" +
             ", t.name as topicName ";
 
@@ -157,7 +157,7 @@ public class QuestionServiceImpl implements QuestionService,FunctionInterface.Be
         repo.save(Question.builder()
                 .content(req.getContent())
                 .title(req.getTitle())
-                .imgUrl(filePath)
+//                .imgUrl(filePath)
                 .topicId(req.getTopicId())
                 .userId(req.getUserId())
                 .createTime(now)

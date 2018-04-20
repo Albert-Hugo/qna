@@ -20,7 +20,6 @@ CREATE TABLE `question` (
   `content` varchar(255) DEFAULT NULL,
   `create_time` datetime DEFAULT NULL,
   `title` varchar(255) DEFAULT NULL,
-  `img_url` varchar(255) DEFAULT NULL,
   `topic_id` int(11) DEFAULT NULL,
   `update_time` datetime DEFAULT NULL,
   `user_id` int(11) DEFAULT NULL,
@@ -28,6 +27,13 @@ CREATE TABLE `question` (
   `reputation_sent` int(11) DEFAULT 0 ,
   PRIMARY KEY (`id`)
 ) ENGINE=InnoDB AUTO_INCREMENT=10 DEFAULT CHARSET=utf8mb4;
+
+CREATE TABLE `question_image` (
+  `id` int(11) unsigned NOT NULL AUTO_INCREMENT,
+  `question_id` int(11) DEFAULT NULL,
+  `img_url` varchar(255) DEFAULT NULL,
+  PRIMARY KEY (`id`)
+) ENGINE=InnoDB AUTO_INCREMENT=1 DEFAULT CHARSET=utf8mb4;
 
 
 CREATE TABLE `topic` (
