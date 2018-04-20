@@ -36,5 +36,7 @@ public interface QuestionService {
      */
     Page<Map<String,Object>> hotestQuestions(HotQuestionReq req);
 
+    void delete(int userId, int questionId);
+
 
 }

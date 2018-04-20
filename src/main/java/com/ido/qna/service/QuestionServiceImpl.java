@@ -34,7 +34,7 @@ import static com.ido.qna.QnaApplication.toUpdateUserInfo;
 
 @Service
 @Slf4j
-public class QuestionServiceImpl implements QuestionService,FunctionInterface.BeforeCleanUp<Integer> {
+public class QuestionServiceImpl implements QuestionService, FunctionInterface.BeforeCleanUp<Integer> {
     @Autowired
     QuestionRepo repo;
     @Autowired
@@ -54,8 +54,8 @@ public class QuestionServiceImpl implements QuestionService,FunctionInterface.Be
             ", t.name as topicName ";
 
     private CacheMap<Integer> detailReadCountTable = new CacheMap<>(new ConcurrentHashMap<>(10), this);
-    private CacheMap<Integer> likeRecordTable = new CacheMap<>(new ConcurrentHashMap<>(10), (toRemove->{
-        if(toRemove== null || toRemove.size() == 0){
+    private CacheMap<Integer> likeRecordTable = new CacheMap<>(new ConcurrentHashMap<>(10), (toRemove -> {
+        if (toRemove == null || toRemove.size() == 0) {
             return;
         }
 
@@ -69,8 +69,20 @@ public class QuestionServiceImpl implements QuestionService,FunctionInterface.Be
         // update the already exist record instead of save one more for those user already vote before
         likeRecordRepo.save(toSave);
 
-    }),2*60,"like-record-clean-up");
+    }), 2 * 60, "like-record-clean-up");
 
+    @Override
+    public void delete(int userId, int questionId) {
+        Question q = repo.findOne(questionId);
+        if(q==null){
+            return;
+        }
+
+        if(q.getUserId() != userId){
+            throw new RuntimeException("删除失败");
+        }
+        repo.delete(questionId);
+    }
 
     @Override
     public void vote(QuestionController.VoteReq req) {
@@ -78,20 +90,20 @@ public class QuestionServiceImpl implements QuestionService,FunctionInterface.Be
         //update the vote like , if user already vote , change to like  or dislike
         //if not ,put into the like Set
         CacheVoteRecords cacheVoteRecords = (CacheVoteRecords) likeRecordTable.get(req.getQuestionId());
-        if(cacheVoteRecords == null){
+        if (cacheVoteRecords == null) {
             log.error("the cache vote record should not be null in here");
-        }else{
+        } else {
             //update record set
             QuestionLikeRecord rc = voteToQesLikeRd(req);
-            int c = rc.getLiked() ? 1 : -1 ;
+            int c = rc.getLiked() ? 1 : -1;
             //update vote count in cache
-            cacheVoteRecords.setVoteCount(cacheVoteRecords.getVoteCount()+c);
+            cacheVoteRecords.setVoteCount(cacheVoteRecords.getVoteCount() + c);
             cacheVoteRecords.getVoteRecords().add(rc);
 
         }
     }
 
-    private QuestionLikeRecord voteToQesLikeRd(QuestionController.VoteReq req ){
+    private QuestionLikeRecord voteToQesLikeRd(QuestionController.VoteReq req) {
         return QuestionLikeRecord.builder()
                 .liked(req.getLike())
                 .id(req.getId())
@@ -103,7 +115,7 @@ public class QuestionServiceImpl implements QuestionService,FunctionInterface.Be
     @Override
     @Transactional(rollbackFor = Throwable.class)
     public void beforeCleanUp(Map<Integer, Object> toRemove) {
-        if(toRemove== null || toRemove.size() == 0){
+        if (toRemove == null || toRemove.size() == 0) {
             return;
         }
         List<Question> toUpdatas = new ArrayList<>(toRemove.size());
@@ -123,17 +135,18 @@ public class QuestionServiceImpl implements QuestionService,FunctionInterface.Be
 
     }
 
-    private boolean alreadyUpdatedToday(int userId){
+    private boolean alreadyUpdatedToday(int userId) {
         UserInfo userInfo = useRepo.findOne(userId);
         log.info(userInfo.toString());
-        return useRepo.countByIdAndUpdateTime(userId,new Date())>0;
+        return useRepo.countByIdAndUpdateTime(userId, new Date()) > 0;
     }
+
     @Override
     @Transactional(rollbackFor = Throwable.class)
-    public void ask(QuestionController.QuestionReq req,MultipartFile file) {
+    public void ask(QuestionController.QuestionReq req, MultipartFile file) {
         Date now = new Date();
         if (toUpdateUserInfo && !alreadyUpdatedToday(req.getUserId())) {
-            log.info("update user info: {} ",req.toString());
+            log.info("update user info: {} ", req.toString());
             new SqlAppender(em)
                     .update("user_info")
                     .set("nick_name", "nickName", req.getNickName())
@@ -146,9 +159,9 @@ public class QuestionServiceImpl implements QuestionService,FunctionInterface.Be
                     .execute_update();
         }
         String filePath = null;
-        if(file != null){
+        if (file != null) {
             try {
-                filePath = uploadService.upload(file.getOriginalFilename(),file.getInputStream(),req.getUserId());
+                filePath = uploadService.upload(file.getOriginalFilename(), file.getInputStream(), req.getUserId());
             } catch (IOException e) {
                 e.printStackTrace();
             }
@@ -169,15 +182,15 @@ public class QuestionServiceImpl implements QuestionService,FunctionInterface.Be
     @Override
     public Page<Map<String, Object>> findQuestions(ListQuestionReq req) {
 
-        StringBuilder sql = new StringBuilder("select " +BASIC_QUESTION_RESULT_LIST+
+        StringBuilder sql = new StringBuilder("select " + BASIC_QUESTION_RESULT_LIST +
                 " from question q" +
                 " left join user_info u on q.user_id = u.id" +
                 " left join user_title ut on ut.id = u.title_id " +
                 " left join topic t on t.id = q.topic_id " +
                 " where 1 = 1 ");
         List<Map<String, Object>> result = new SqlAppender(em, sql)
-                .and("q.topic_id","topic_id",req.getTopicId())
-                .and("q.user_id","user_id",req.getUserId())
+                .and("q.topic_id", "topic_id", req.getTopicId())
+                .and("q.user_id", "user_id", req.getUserId())
                 .orderBy(req.getPageQuery().getSort())
                 .limit(req.getPageQuery().getOffset(), req.getPageQuery().getLimit())
                 .getResultList();
@@ -196,8 +209,8 @@ public class QuestionServiceImpl implements QuestionService,FunctionInterface.Be
                 m.put("readCount", count);
 
             }
-            m.put("replyCount",replyService.getReplyCount(questionId));
-            m.put("voteCount",getVoteCount(questionId));
+            m.put("replyCount", replyService.getReplyCount(questionId));
+            m.put("voteCount", getVoteCount(questionId));
             m.put("createTime", DateUtil.toYyyyMMdd_HHmmss((Date) m.get("createTime")));
 
         });
@@ -208,7 +221,7 @@ public class QuestionServiceImpl implements QuestionService,FunctionInterface.Be
         //"q.id, q.title, q.content, q.create_time,q.read_count," +
 //        "u.nick_name as userName , u.id as userId, u.gender ,ut.title as userTitle, ut.title_color as titleColor" +
 //                ", t.name as topicName "
-        StringBuilder sql = new StringBuilder("select distinct  " +BASIC_QUESTION_RESULT_LIST+
+        StringBuilder sql = new StringBuilder("select distinct  " + BASIC_QUESTION_RESULT_LIST +
                 ",(select count(*) from reply r1 where r1.question_id = q.id) as replyCount" +
                 " from question q " +
                 " left join reply r  on r.question_id = q.id\n" +
@@ -221,7 +234,7 @@ public class QuestionServiceImpl implements QuestionService,FunctionInterface.Be
                         , "content", "createTime", "readCount"
                         , "userName", "userId", "gender"
                         , "userTitle", "titleColor", "topicName"
-                        ,"replyCount"))
+                        , "replyCount"))
                 .limit(req.getPageQuery().getOffset(), req.getPageQuery().getLimit())
                 .getResultList();
 
@@ -248,7 +261,7 @@ public class QuestionServiceImpl implements QuestionService,FunctionInterface.Be
                 .getResultList();
 
         //decide if the login user like this post or not
-        QuestionLikeRecord likeRecord = likeRecordRepo.findByUserIdAndQuestionId(userId,questionId);
+        QuestionLikeRecord likeRecord = likeRecordRepo.findByUserIdAndQuestionId(userId, questionId);
 
 
         int voteCount = getVoteCount(questionId);
@@ -257,8 +270,8 @@ public class QuestionServiceImpl implements QuestionService,FunctionInterface.Be
         final Integer vc = Integer.valueOf(voteCount);
         result.stream().forEach(r -> {
             r.put("createTime", DateUtil.toYyyyMMdd_HHmmss((Date) r.get("createTime")));
-            r.put("voteCount",vc);
-            r.put("userVoteRecord",likeRecord);
+            r.put("voteCount", vc);
+            r.put("userVoteRecord", likeRecord);
         });
 
         if (!result.isEmpty()) {
@@ -272,7 +285,7 @@ public class QuestionServiceImpl implements QuestionService,FunctionInterface.Be
                 detailReadCountTable.put(questionId, readCount);
             }
             //return the newest read count
-            m.put("readCount",readCount);
+            m.put("readCount", readCount);
             return m;
         }
         return null;
@@ -280,6 +293,7 @@ public class QuestionServiceImpl implements QuestionService,FunctionInterface.Be
 
     /**
      * get the vote count for question
+     *
      * @param questionId question id
      * @return (like - disLike)
      */
@@ -287,17 +301,17 @@ public class QuestionServiceImpl implements QuestionService,FunctionInterface.Be
         // get the vote cache from cache table ,if not exist , fetch it from db ,and store to cache
         CacheVoteRecords cacheVoteRecords = (CacheVoteRecords) likeRecordTable.get(questionId);
         int voteCount = 0;
-        if(cacheVoteRecords == null){
-            int likeC = likeRecordRepo.countByQuestionIdAndLiked(questionId,true);
-            int disLikeC = likeRecordRepo.countByQuestionIdAndLiked(questionId,false);
+        if (cacheVoteRecords == null) {
+            int likeC = likeRecordRepo.countByQuestionIdAndLiked(questionId, true);
+            int disLikeC = likeRecordRepo.countByQuestionIdAndLiked(questionId, false);
             voteCount = likeC - disLikeC;
             cacheVoteRecords = CacheVoteRecords.builder()
                     //only need to fetch the count
                     .voteCount(voteCount)
                     .voteRecords(new HashSet<>(0))
                     .build();
-            likeRecordTable.put(questionId,cacheVoteRecords);
-        }else{
+            likeRecordTable.put(questionId, cacheVoteRecords);
+        } else {
             voteCount = cacheVoteRecords.getVoteCount();
         }
         return voteCount;
