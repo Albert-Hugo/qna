@@ -3,6 +3,8 @@ package com.ido.qna.controller;
 import com.ido.qna.controller.request.HotQuestionReq;
 import com.ido.qna.controller.request.ListQuestionReq;
 import com.ido.qna.controller.response.ResponseDTO;
+import com.ido.qna.entity.QuestionImage;
+import com.ido.qna.repo.QuestionImageRepo;
 import com.ido.qna.service.*;
 import lombok.AllArgsConstructor;
 import lombok.Data;
@@ -31,7 +33,8 @@ public class QuestionController {
     FileUploadService uploadService;
     @Autowired
     TopicService topicService;
-
+    @Autowired
+    QuestionImageRepo questionImageRepo;
 
     @GetMapping("topics")
     public ResponseDTO topics() throws IOException {
@@ -39,17 +42,19 @@ public class QuestionController {
     }
 
     @PostMapping("upload")
-    public ResponseDTO upload( Integer userId, MultipartFile file) throws IOException {
+    public ResponseDTO upload( Integer userId, Integer questionId,MultipartFile file) throws IOException {
         String filePath = uploadService.upload(file.getOriginalFilename(),file.getInputStream(),userId);
+        questionImageRepo.save(QuestionImage.builder()
+                .imgUrl(filePath)
+                .questionId(questionId)
+                .build());
         log.info(filePath);
         return ResponseDTO.succss("ok");
     }
 
     @PostMapping("ask")
     public ResponseDTO ask( QuestionReq req, MultipartFile file) {
-        questionServ.ask(req,file);
-        log.info(req.toString());
-        return ResponseDTO.succss("ok");
+        return ResponseDTO.succss(questionServ.ask(req,file));
     }
 
     @PostMapping("reply")

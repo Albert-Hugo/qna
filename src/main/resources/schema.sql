@@ -32,6 +32,7 @@ CREATE TABLE `question_image` (
   `id` int(11) unsigned NOT NULL AUTO_INCREMENT,
   `question_id` int(11) DEFAULT NULL,
   `img_url` varchar(255) DEFAULT NULL,
+  `create_time` TIMESTAMP DEFAULT CURRENT_TIMESTAMP ,
   PRIMARY KEY (`id`)
 ) ENGINE=InnoDB AUTO_INCREMENT=1 DEFAULT CHARSET=utf8mb4;
 

@@ -6,6 +6,7 @@ import com.ido.qna.controller.request.ListQuestionReq;
 import com.ido.qna.entity.Question;
 import com.ido.qna.entity.QuestionLikeRecord;
 import com.ido.qna.entity.UserInfo;
+import com.ido.qna.repo.QuestionImageRepo;
 import com.ido.qna.repo.QuestionLikeRecordRepo;
 import com.ido.qna.repo.QuestionRepo;
 import com.ido.qna.repo.UserInfoRepo;
@@ -48,6 +49,8 @@ public class QuestionServiceImpl implements QuestionService, FunctionInterface.B
     FileUploadService uploadService;
     @Autowired
     ReplyService replyService;
+    @Autowired
+    QuestionImageRepo questionImageRepo;
 
     final String BASIC_QUESTION_RESULT_LIST = "q.id, q.title, q.content, q.create_time,q.read_count" +
             ", u.avatar_url, u.nick_name as userName , u.id as userId, u.gender ,ut.title as userTitle, ut.title_color as titleColor" +
@@ -143,7 +146,7 @@ public class QuestionServiceImpl implements QuestionService, FunctionInterface.B
 
     @Override
     @Transactional(rollbackFor = Throwable.class)
-    public void ask(QuestionController.QuestionReq req, MultipartFile file) {
+    public Question ask(QuestionController.QuestionReq req, MultipartFile file) {
         Date now = new Date();
         if (toUpdateUserInfo && !alreadyUpdatedToday(req.getUserId())) {
             log.info("update user info: {} ", req.toString());
@@ -167,7 +170,7 @@ public class QuestionServiceImpl implements QuestionService, FunctionInterface.B
             }
         }
 
-        repo.save(Question.builder()
+        return repo.save(Question.builder()
                 .content(req.getContent())
                 .title(req.getTitle())
 //                .imgUrl(filePath)
@@ -210,6 +213,7 @@ public class QuestionServiceImpl implements QuestionService, FunctionInterface.B
 
             }
             m.put("replyCount", replyService.getReplyCount(questionId));
+            m.put("images", questionImageRepo.findByQuestionId(questionId));
             m.put("voteCount", getVoteCount(questionId));
             m.put("createTime", DateUtil.toYyyyMMdd_HHmmss((Date) m.get("createTime")));
 
@@ -249,7 +253,7 @@ public class QuestionServiceImpl implements QuestionService, FunctionInterface.B
     public Map detail(QuestionController.DetailReq req) {
         int questionId = req.getQuestionId();
         int userId = req.getUserId();
-        StringBuilder sql = new StringBuilder("select q.id, q.title, q.content, q.create_time,q.read_count, q.img_url" +
+        StringBuilder sql = new StringBuilder("select q.id, q.title, q.content, q.create_time,q.read_count" +
                 " ,u.nick_name as userName , u.id as userId, u.avatar_url , t.name as topicName from question q" +
                 " left join user_info u on q.user_id = u.id" +
                 " left join topic t on t.id = q.topic_id " +
@@ -272,6 +276,7 @@ public class QuestionServiceImpl implements QuestionService, FunctionInterface.B
             r.put("createTime", DateUtil.toYyyyMMdd_HHmmss((Date) r.get("createTime")));
             r.put("voteCount", vc);
             r.put("userVoteRecord", likeRecord);
+            r.put("images",questionImageRepo.findByQuestionId(questionId));
         });
 
         if (!result.isEmpty()) {

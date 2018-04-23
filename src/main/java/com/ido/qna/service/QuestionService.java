@@ -13,7 +13,7 @@ import java.util.Map;
 
 public interface QuestionService {
 
-    void ask(QuestionController.QuestionReq req, MultipartFile f);
+    Question ask(QuestionController.QuestionReq req, MultipartFile f);
 
 //    Page<Map<String,Object>> getLatest(Pageable pageable);
 
