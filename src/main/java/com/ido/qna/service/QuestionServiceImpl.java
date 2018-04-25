@@ -75,7 +75,9 @@ public class QuestionServiceImpl implements QuestionService, FunctionInterface.B
     }), 2 * 60, "like-record-clean-up");
 
     @Override
+    @Transactional
     public void delete(int userId, int questionId) {
+        log.info("user {} delete question {} ",userId,questionId);
         Question q = repo.findOne(questionId);
         if (q == null) {
             return;
@@ -84,6 +86,7 @@ public class QuestionServiceImpl implements QuestionService, FunctionInterface.B
         if (q.getUserId() != userId) {
             throw new RuntimeException("删除失败");
         }
+        replyService.deleteByQuestionId(questionId);
         repo.delete(questionId);
     }
 
@@ -274,9 +277,9 @@ public class QuestionServiceImpl implements QuestionService, FunctionInterface.B
                 break;
             }
         }
-//        if (likeRecord == null) {
-//            likeRecord = likeRecordRepo.findByUserIdAndQuestionId(userId, questionId);
-//        }
+        if (likeRecord == null) {
+            likeRecord = likeRecordRepo.findByUserIdAndQuestionId(userId, questionId);
+        }
 
 
         int voteCount = getVoteCount(questionId);

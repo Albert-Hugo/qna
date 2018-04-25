@@ -14,4 +14,6 @@ public interface ReplyService {
 
     int getReplyCount(int questionId);
 
+    void deleteByQuestionId(int questionId);
+
 }

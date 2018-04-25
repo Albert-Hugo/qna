@@ -38,6 +38,11 @@ public class ReplyServiceImpl implements ReplyService {
     ZanService zanService;
 
     @Override
+    public void deleteByQuestionId(int questionId) {
+        replyRepo.deleteAllByQuestionId(questionId);
+    }
+
+    @Override
     public Page<Map<String,Object>> reply(QuestionController.ReplyReq req) {
         UserInfo u = userSer.findUser(req.getUserId());
         if(u == null){
