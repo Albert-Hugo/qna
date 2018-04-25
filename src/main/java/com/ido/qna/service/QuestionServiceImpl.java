@@ -77,11 +77,11 @@ public class QuestionServiceImpl implements QuestionService, FunctionInterface.B
     @Override
     public void delete(int userId, int questionId) {
         Question q = repo.findOne(questionId);
-        if(q==null){
+        if (q == null) {
             return;
         }
 
-        if(q.getUserId() != userId){
+        if (q.getUserId() != userId) {
             throw new RuntimeException("删除失败");
         }
         repo.delete(questionId);
@@ -260,40 +260,52 @@ public class QuestionServiceImpl implements QuestionService, FunctionInterface.B
                 " where 1 = 1 ");
         // add vote record , include if the user already vote for this question and how many user already vote
 
-        List<Map<String, Object>> result = new SqlAppender(em, sql)
+        Map<String, Object> result = new SqlAppender(em, sql)
                 .and("q.id", "id", Integer.valueOf(questionId))
-                .getResultList();
+                .getSingleResult();
 
         //decide if the login user like this post or not
-        QuestionLikeRecord likeRecord = likeRecordRepo.findByUserIdAndQuestionId(userId, questionId);
+//        QuestionLikeRecord likeRecord = likeRecordRepo.findByUserIdAndQuestionId(userId, questionId);
+        QuestionLikeRecord likeRecord = null;
+        CacheVoteRecords cacheVoteRecords = (CacheVoteRecords) likeRecordTable.get(questionId);
+        for (QuestionLikeRecord rc : cacheVoteRecords.getVoteRecords()) {
+            if (rc.getUserId().equals(userId)) {
+                likeRecord = rc;
+                break;
+            }
+        }
+//        if (likeRecord == null) {
+//            likeRecord = likeRecordRepo.findByUserIdAndQuestionId(userId, questionId);
+//        }
 
 
         int voteCount = getVoteCount(questionId);
 
 
         final Integer vc = Integer.valueOf(voteCount);
-        result.stream().forEach(r -> {
-            r.put("createTime", DateUtil.toYyyyMMdd_HHmmss((Date) r.get("createTime")));
-            r.put("voteCount", vc);
-            r.put("userVoteRecord", likeRecord);
-            r.put("images",questionImageRepo.findByQuestionId(questionId));
-        });
+        result.put("createTime", DateUtil.toYyyyMMdd_HHmmss((Date) result.get("createTime")));
+        result.put("voteCount", vc);
+        result.put("userVoteRecord", likeRecord);
+        result.put("images", questionImageRepo.findByQuestionId(questionId));
+//        result.stream().forEach(r -> {
+//            r.put("createTime", DateUtil.toYyyyMMdd_HHmmss((Date) r.get("createTime")));
+//            r.put("voteCount", vc);
+//            r.put("userVoteRecord", likeRecord);
+//            r.put("images", questionImageRepo.findByQuestionId(questionId));
+//        });
 
-        if (!result.isEmpty()) {
-            Map m = result.get(0);
-            Integer idg = Integer.valueOf(questionId);
-            Integer readCount = (Integer) detailReadCountTable.get(idg);
-            if (readCount == null) {
-                detailReadCountTable.put(idg, (Integer) m.get("readCount") + 1);
-            } else {
-                ++readCount;
-                detailReadCountTable.put(questionId, readCount);
-            }
-            //return the newest read count
-            m.put("readCount", readCount);
-            return m;
+//        Map m = result;
+        Integer idg = Integer.valueOf(questionId);
+        Integer readCount = (Integer) detailReadCountTable.get(idg);
+        if (readCount == null) {
+            detailReadCountTable.put(idg, (Integer) result.get("readCount") + 1);
+        } else {
+            ++readCount;
+            detailReadCountTable.put(questionId, readCount);
         }
-        return null;
+        //return the newest read count
+        result.put("readCount", readCount);
+        return result;
     }
 
     /**
