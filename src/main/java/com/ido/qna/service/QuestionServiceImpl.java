@@ -271,12 +271,15 @@ public class QuestionServiceImpl implements QuestionService, FunctionInterface.B
 //        QuestionLikeRecord likeRecord = likeRecordRepo.findByUserIdAndQuestionId(userId, questionId);
         QuestionLikeRecord likeRecord = null;
         CacheVoteRecords cacheVoteRecords = (CacheVoteRecords) likeRecordTable.get(questionId);
-        for (QuestionLikeRecord rc : cacheVoteRecords.getVoteRecords()) {
-            if (rc.getUserId().equals(userId)) {
-                likeRecord = rc;
-                break;
+        if(cacheVoteRecords != null){
+            for (QuestionLikeRecord rc : cacheVoteRecords.getVoteRecords()) {
+                if (rc.getUserId().equals(userId)) {
+                    likeRecord = rc;
+                    break;
+                }
             }
         }
+
         if (likeRecord == null) {
             likeRecord = likeRecordRepo.findByUserIdAndQuestionId(userId, questionId);
         }

@@ -68,4 +68,6 @@ public interface UserInfoService {
      * @param userId
      */
     void signIn(int userId);
+
+    boolean alreadySignToday(int userId);
 }

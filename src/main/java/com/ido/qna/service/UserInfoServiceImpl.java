@@ -120,6 +120,7 @@ public class UserInfoServiceImpl implements UserInfoService {
             user.put("titleColor", title.getTitleColor());
             user.put("userTitle", title.getTitle());
         }
+        user.put("alreadySign",alreadySignToday(userId));
         return HashMap.<String, Object>builder()
                 .put("questions", questions)
                 .put("replies", replies)
@@ -182,9 +183,7 @@ public class UserInfoServiceImpl implements UserInfoService {
             return ;
         }
         //查看用户今天是否已经签到过
-        Date today = new Date();
-        int c = signInRecordRepo.countByUserIdAndSignInDate(userId,today);
-        if(c > 0){
+        if(alreadySignToday(userId)){
             log.info("user:{} already sign in today ",userId);
             return ;
         }
@@ -195,7 +194,14 @@ public class UserInfoServiceImpl implements UserInfoService {
 
         signInRecordRepo.save(SignInRecord.builder()
                 .userId(userId)
-                .signInDate(today)
+                .signInDate(new Date())
         .build());
+    }
+
+    @Override
+    public boolean alreadySignToday(int userId) {
+        Date today = new Date();
+        int c = signInRecordRepo.countByUserIdAndSignInDate(userId,today);
+        return c > 0;
     }
 }
