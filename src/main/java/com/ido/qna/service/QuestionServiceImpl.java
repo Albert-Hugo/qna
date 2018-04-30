@@ -225,9 +225,9 @@ public class QuestionServiceImpl implements QuestionService, FunctionInterface.B
 
     @Override
     public Page<Map<String, Object>> hotestQuestions(HotQuestionReq req) {
-        //"q.id, q.title, q.content, q.create_time,q.read_count," +
-//        "u.nick_name as userName , u.id as userId, u.gender ,ut.title as userTitle, ut.title_color as titleColor" +
-//                ", t.name as topicName "
+        //"q.id, q.title, q.content, q.create_time,q.read_count" +
+//        ", u.avatar_url, u.nick_name as userName , u.id as userId, u.gender ,ut.title as userTitle, ut.title_color as titleColor" +
+//                ", t.name as topicName"
         StringBuilder sql = new StringBuilder("select distinct  " + BASIC_QUESTION_RESULT_LIST +
                 ",(select count(*) from reply r1 where r1.question_id = q.id) as replyCount" +
                 " from question q " +
@@ -238,8 +238,8 @@ public class QuestionServiceImpl implements QuestionService, FunctionInterface.B
                 " where 1 = 1 order by replyCount DESC");
         List<Map<String, Object>> result = new SqlAppender(em, sql)
                 .ownDefinedColumnAlias(Arrays.asList("id", "title"
-                        , "content", "createTime", "readCount"
-                        , "userName", "userId", "gender"
+                        , "content","createTime","readCount"
+                        , "avatarUrl", "userName", "userId", "gender"
                         , "userTitle", "titleColor", "topicName"
                         , "replyCount"))
                 .limit(req.getPageQuery().getOffset(), req.getPageQuery().getLimit())

@@ -104,14 +104,29 @@ public class UserInfoServiceImpl implements UserInfoService {
                 .limit(0, 3)
                 .getResultList();
 
+        questions.forEach(r->{
+            String  c = (String) r.get("content");
+            if(c.length()>10){
+                r.put("content",c.substring(0,10)+"...");
+            }
+
+        });
+
         //获取最近评论的信息,限制5条
-        String s = "select q.title,q.id\n" +
+        String s = "select q.content,q.id\n" +
                 "from question q " +
                 "join ( select r.question_id as qid  , max(r.create_time) as create_time  from reply r where r.user_id = " + userId + " group by r.question_id  ) as t1 on t1.qid = q.id " +
                 " where 1 = 1 order by t1.create_time desc limit 0, 5 \n";
         StringBuilder sql2 = new StringBuilder(s);
         List<Map<String, Object>> replies = new SqlAppender(em, sql2)
                 .getResultList();
+        replies.forEach(r->{
+            String  c = (String) r.get("content");
+            if(c.length()>10){
+                r.put("content",c.substring(0,10)+"...");
+            }
+
+        });
         UserInfo userInfo = repo.findOne(userId);
         Map<String, Object> user =
                 new ObjectMapper().convertValue(userInfo, Map.class);
