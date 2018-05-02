@@ -46,6 +46,7 @@ public class QuestionServiceImpl implements QuestionService, FunctionInterface.B
     @Autowired
     QuestionLikeRecordRepo likeRecordRepo;
     @Autowired
+    @Qualifier("cosService")
     FileUploadService uploadService;
     @Autowired
     ReplyService replyService;

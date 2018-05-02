@@ -7,6 +7,7 @@ import com.ido.qna.service.QuestionService;
 import com.ido.qna.service.UserInfoService;
 import com.ido.qna.service.domain.AddScoreParam;
 import com.rainful.dao.SqlAppender;
+import com.rainful.util.DateUtil;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -39,7 +40,7 @@ public class ScheduledTask {
     private static final int MINS = 60 * SECOND;
     private static final int HOUR = 60 * MINS;
     private static final int DAY = 24 * HOUR;
-
+    public static String TODAY = "";
     @Autowired
     private QuestionService questionService;
     @Autowired
@@ -63,6 +64,15 @@ public class ScheduledTask {
         }else{
             log.info("today is day {}, not to update user info ",day);
         }
+    }
+
+    /**
+     * 每天凌晨一点执行
+     */
+    @Scheduled(cron = "0 0 0 * * ?")
+    public void setTodayString() {
+        TODAY = DateUtil.toYyyyMMdd(System.currentTimeMillis());
+        log.info("updating today string to "+TODAY);
     }
 
 

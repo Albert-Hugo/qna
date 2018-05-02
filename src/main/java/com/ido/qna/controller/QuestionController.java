@@ -12,11 +12,14 @@ import lombok.EqualsAndHashCode;
 import lombok.NoArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.data.domain.Pageable;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 
 import java.io.IOException;
+import java.util.HashMap;
+import java.util.Map;
 
 @RestController
 @RequestMapping("question")
@@ -30,6 +33,7 @@ public class QuestionController {
     ZanService zanService;
 
     @Autowired
+    @Qualifier("cosService")
     FileUploadService uploadService;
     @Autowired
     TopicService topicService;
@@ -43,7 +47,9 @@ public class QuestionController {
 
     @PostMapping("upload")
     public ResponseDTO upload( Integer userId, Integer questionId,MultipartFile file) throws IOException {
-        String filePath = uploadService.upload(file.getOriginalFilename(),file.getInputStream(),userId);
+        Map<String,String> headers = new HashMap<>(2);
+        headers.put("content-type", file.getContentType());
+        String filePath = uploadService.upload(file.getOriginalFilename(),file.getInputStream(),userId,headers);
         questionImageRepo.save(QuestionImage.builder()
                 .imgUrl(filePath)
                 .questionId(questionId)

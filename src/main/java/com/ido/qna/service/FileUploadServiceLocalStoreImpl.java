@@ -10,6 +10,7 @@ import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.time.LocalDate;
 import java.util.Date;
+import java.util.Map;
 
 @Service
 @Slf4j
@@ -61,4 +62,8 @@ public class FileUploadServiceLocalStoreImpl implements FileUploadService {
         return STATIC_FILE_HOST+accessPrefix+fileName;
     }
 
+    @Override
+    public String upload(String fileName, InputStream is, Integer userId, Map<String, String> header) throws IOException {
+        return null;
+    }
 }
