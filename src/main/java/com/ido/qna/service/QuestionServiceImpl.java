@@ -5,11 +5,9 @@ import com.ido.qna.controller.request.HotQuestionReq;
 import com.ido.qna.controller.request.ListQuestionReq;
 import com.ido.qna.entity.Question;
 import com.ido.qna.entity.QuestionLikeRecord;
+import com.ido.qna.entity.QuestionVideo;
 import com.ido.qna.entity.UserInfo;
-import com.ido.qna.repo.QuestionImageRepo;
-import com.ido.qna.repo.QuestionLikeRecordRepo;
-import com.ido.qna.repo.QuestionRepo;
-import com.ido.qna.repo.UserInfoRepo;
+import com.ido.qna.repo.*;
 import com.ido.qna.service.domain.CacheVoteRecords;
 import com.ido.qna.util.CacheMap;
 import com.ido.qna.util.FunctionInterface;
@@ -52,6 +50,8 @@ public class QuestionServiceImpl implements QuestionService, FunctionInterface.B
     ReplyService replyService;
     @Autowired
     QuestionImageRepo questionImageRepo;
+    @Autowired
+    QuestionVideoRepo videoRepo;
 
     final String BASIC_QUESTION_RESULT_LIST = "q.id, q.title, q.content, q.create_time,q.read_count" +
             ", u.avatar_url, u.nick_name as userName , u.id as userId, u.gender ,ut.title as userTitle, ut.title_color as titleColor" +
@@ -216,8 +216,11 @@ public class QuestionServiceImpl implements QuestionService, FunctionInterface.B
                 m.put("readCount", count);
 
             }
+            QuestionVideo video = videoRepo.findOne(questionId);
+            String videoSrc = video !=null ? video.getVideoUrl():null;
             m.put("replyCount", replyService.getReplyCount(questionId));
             m.put("images", questionImageRepo.findByQuestionId(questionId));
+            m.put("videoUrl", videoSrc);
             m.put("voteCount", getVoteCount(questionId));
             m.put("createTime", DateUtil.toYyyyMMdd_HHmmss((Date) m.get("createTime")));
 
@@ -294,14 +297,10 @@ public class QuestionServiceImpl implements QuestionService, FunctionInterface.B
         result.put("voteCount", vc);
         result.put("userVoteRecord", likeRecord);
         result.put("images", questionImageRepo.findByQuestionId(questionId));
-//        result.stream().forEach(r -> {
-//            r.put("createTime", DateUtil.toYyyyMMdd_HHmmss((Date) r.get("createTime")));
-//            r.put("voteCount", vc);
-//            r.put("userVoteRecord", likeRecord);
-//            r.put("images", questionImageRepo.findByQuestionId(questionId));
-//        });
+        QuestionVideo video = videoRepo.findOne(questionId);
+        String videoSrc = video !=null ? video.getVideoUrl():null;
+        result.put("videoUrl",videoSrc);
 
-//        Map m = result;
         Integer idg = Integer.valueOf(questionId);
         Integer readCount = (Integer) detailReadCountTable.get(idg);
         if (readCount == null) {

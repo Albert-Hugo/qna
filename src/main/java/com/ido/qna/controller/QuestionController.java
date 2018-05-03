@@ -4,7 +4,9 @@ import com.ido.qna.controller.request.HotQuestionReq;
 import com.ido.qna.controller.request.ListQuestionReq;
 import com.ido.qna.controller.response.ResponseDTO;
 import com.ido.qna.entity.QuestionImage;
+import com.ido.qna.entity.QuestionVideo;
 import com.ido.qna.repo.QuestionImageRepo;
+import com.ido.qna.repo.QuestionVideoRepo;
 import com.ido.qna.service.*;
 import lombok.AllArgsConstructor;
 import lombok.Data;
@@ -39,6 +41,8 @@ public class QuestionController {
     TopicService topicService;
     @Autowired
     QuestionImageRepo questionImageRepo;
+    @Autowired
+    QuestionVideoRepo videoRepo;
 
     @GetMapping("topics")
     public ResponseDTO topics() throws IOException {
@@ -49,11 +53,23 @@ public class QuestionController {
     public ResponseDTO upload( Integer userId, Integer questionId,MultipartFile file) throws IOException {
         Map<String,String> headers = new HashMap<>(2);
         headers.put("content-type", file.getContentType());
+        log.info("content type is {}",file.getContentType());
         String filePath = uploadService.upload(file.getOriginalFilename(),file.getInputStream(),userId,headers);
-        questionImageRepo.save(QuestionImage.builder()
-                .imgUrl(filePath)
-                .questionId(questionId)
-                .build());
+        if(filePath == null){
+            return ResponseDTO.falied("filePath is null",10000);
+        }
+        if(file.getContentType().equals("video/mp4")){
+            videoRepo.save(QuestionVideo.builder()
+                    .videoUrl(filePath)
+                    .questionId(questionId)
+                    .build());
+        }else{
+            questionImageRepo.save(QuestionImage.builder()
+                    .imgUrl(filePath)
+                    .questionId(questionId)
+                    .build());
+        }
+
         log.info(filePath);
         return ResponseDTO.succss("ok");
     }

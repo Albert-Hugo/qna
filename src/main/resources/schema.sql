@@ -37,6 +37,15 @@ CREATE TABLE `question_image` (
 ) ENGINE=InnoDB AUTO_INCREMENT=1 DEFAULT CHARSET=utf8mb4;
 
 
+CREATE TABLE `question_video` (
+  `question_id` int(11) unsigned DEFAULT NULL,
+  `video_url` varchar(255) DEFAULT NULL,
+  `create_time` TIMESTAMP DEFAULT CURRENT_TIMESTAMP ,
+  PRIMARY KEY (`question_id`)
+) ENGINE=InnoDB AUTO_INCREMENT=1 DEFAULT CHARSET=utf8mb4;
+
+
+
 CREATE TABLE `topic` (
   `id` int(11) NOT NULL AUTO_INCREMENT,
   `name` varchar(255) DEFAULT NULL,
