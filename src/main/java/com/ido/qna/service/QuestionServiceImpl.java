@@ -217,10 +217,9 @@ public class QuestionServiceImpl implements QuestionService, FunctionInterface.B
 
             }
             QuestionVideo video = videoRepo.findOne(questionId);
-            String videoSrc = video !=null ? video.getVideoUrl():null;
             m.put("replyCount", replyService.getReplyCount(questionId));
             m.put("images", questionImageRepo.findByQuestionId(questionId));
-            m.put("videoUrl", videoSrc);
+            m.put("video", video);
             m.put("voteCount", getVoteCount(questionId));
             m.put("createTime", DateUtil.toYyyyMMdd_HHmmss((Date) m.get("createTime")));
 
@@ -298,8 +297,7 @@ public class QuestionServiceImpl implements QuestionService, FunctionInterface.B
         result.put("userVoteRecord", likeRecord);
         result.put("images", questionImageRepo.findByQuestionId(questionId));
         QuestionVideo video = videoRepo.findOne(questionId);
-        String videoSrc = video !=null ? video.getVideoUrl():null;
-        result.put("videoUrl",videoSrc);
+        result.put("video",video);
 
         Integer idg = Integer.valueOf(questionId);
         Integer readCount = (Integer) detailReadCountTable.get(idg);

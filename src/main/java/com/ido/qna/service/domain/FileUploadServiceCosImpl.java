@@ -28,6 +28,14 @@ public class FileUploadServiceCosImpl implements FileUploadService {
     }
 
     @Override
+    public String upload(File file,  Integer userId) throws IOException {
+        String remoteFilePath = userId+"/"+TODAY+"/"+file.getName();
+        cosService.store(file,remoteFilePath);
+        String urlToView = cosService.getViewUrl(remoteFilePath);
+        return urlToView;
+    }
+
+    @Override
     public String upload(String fileName, InputStream is, Integer userId, Map<String, String> header) throws IOException {
         if(fileName==null || fileName.equals("")){
             throw new IllegalArgumentException("file name is null or empty");

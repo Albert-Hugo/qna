@@ -18,6 +18,7 @@ public class QuestionVideo {
     @Id
     Integer questionId;
     private String videoUrl;
+    private String videoPosterUrl;
     private Date createTime;
 
 }
