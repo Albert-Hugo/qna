@@ -26,6 +26,7 @@ import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 
 @RestController
@@ -52,10 +53,14 @@ public class QuestionController {
     private String temDir = "temp";
     @Value("${fmmPath}")
     private String fmmPath;
+    private List topics ;
 
     @GetMapping("topics")
     public ResponseDTO topics() throws IOException {
-        return ResponseDTO.succss(topicService.loadTopic());
+        if(topics == null){
+            topics = topicService.loadTopic();
+        }
+        return ResponseDTO.succss(topics);
     }
 
     @PostMapping("upload")
@@ -124,10 +129,17 @@ public class QuestionController {
                     .videoPosterUrl(videoPosterUrl)
                     .build());
         } else {
-            questionImageRepo.save(QuestionImage.builder()
-                    .imgUrl(filePath)
-                    .questionId(questionId)
-                    .build());
+            try{
+
+                filePath = uploadService.upload(file.getOriginalFilename(), file.getInputStream(), userId, headers);
+                questionImageRepo.save(QuestionImage.builder()
+                        .imgUrl(filePath)
+                        .questionId(questionId)
+                        .build());
+            }catch (IOException e){
+                log.error(e.getMessage(),e);
+                throw new RuntimeException(e.getMessage());
+            }
         }
 
         log.info(filePath);
