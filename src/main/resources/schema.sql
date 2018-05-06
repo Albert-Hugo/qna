@@ -38,7 +38,7 @@ CREATE TABLE `question_image` (
 
 
 CREATE TABLE `question_video` (
-  `question_id` int(11) unsigned DEFAULT NULL,
+  `question_id` int(11) unsigned  ,
   `video_url` varchar(255) DEFAULT NULL,
   `video_poster_url` varchar(255) DEFAULT NULL,
   `create_time` TIMESTAMP DEFAULT CURRENT_TIMESTAMP ,
@@ -117,4 +117,6 @@ CREATE TABLE `user_title` (
 insert into user_title (id,user_id ,title,title_color)
 VALUES
 (1,1,'百晓通','#07c');
+
+ALTER TABLE user_title add active TINYINT(1) DEFAULT 0;
 

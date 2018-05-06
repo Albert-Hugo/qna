@@ -26,6 +26,8 @@ import org.springframework.web.multipart.MultipartFile;
 
 import javax.persistence.EntityManager;
 import java.io.IOException;
+import java.time.LocalDate;
+import java.time.LocalDateTime;
 import java.util.*;
 import java.util.concurrent.ConcurrentHashMap;
 
@@ -52,6 +54,9 @@ public class QuestionServiceImpl implements QuestionService, FunctionInterface.B
     QuestionImageRepo questionImageRepo;
     @Autowired
     QuestionVideoRepo videoRepo;
+    @Autowired
+    UserTitleRepo titleRepo;
+
 
     final String BASIC_QUESTION_RESULT_LIST = "q.id, q.title, q.content, q.create_time,q.read_count" +
             ", u.avatar_url, u.nick_name as userName , u.id as userId, u.gender ,ut.title as userTitle, ut.title_color as titleColor" +
@@ -226,6 +231,8 @@ public class QuestionServiceImpl implements QuestionService, FunctionInterface.B
         });
     }
 
+
+
     @Override
     public Page<Map<String, Object>> hotestQuestions(HotQuestionReq req) {
         //"q.id, q.title, q.content, q.create_time,q.read_count" +
@@ -247,7 +254,6 @@ public class QuestionServiceImpl implements QuestionService, FunctionInterface.B
                         , "replyCount"))
                 .limit(req.getPageQuery().getOffset(), req.getPageQuery().getLimit())
                 .getResultList();
-
         //get the latest read count from memory
         addReturnVal(result);
 
@@ -298,6 +304,7 @@ public class QuestionServiceImpl implements QuestionService, FunctionInterface.B
         result.put("images", questionImageRepo.findByQuestionId(questionId));
         QuestionVideo video = videoRepo.findOne(questionId);
         result.put("video",video);
+        result.put("title",titleRepo.findByUserIdAndActiveIsTrue(userId));
 
         Integer idg = Integer.valueOf(questionId);
         Integer readCount = (Integer) detailReadCountTable.get(idg);

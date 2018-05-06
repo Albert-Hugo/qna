@@ -1,5 +1,6 @@
 package com.ido.qna.service;
 
+import ch.qos.logback.classic.db.SQLBuilder;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.google.common.cache.CacheBuilder;
 import com.google.common.cache.CacheLoader;
@@ -13,6 +14,7 @@ import com.ido.qna.repo.UserInfoRepo;
 import com.ido.qna.repo.UserTitleRepo;
 import com.ido.qna.service.domain.AddScoreParam;
 import com.rainful.dao.SqlAppender;
+import com.rainful.util.DateUtil;
 import com.rainful.util.HashMap;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -26,6 +28,8 @@ import java.util.List;
 import java.util.Map;
 import java.util.concurrent.ExecutionException;
 import java.util.concurrent.TimeUnit;
+
+import static com.ido.qna.config.ScheduledTask.TODAY;
 
 @Service
 @Slf4j
@@ -215,8 +219,13 @@ public class UserInfoServiceImpl implements UserInfoService {
 
     @Override
     public boolean alreadySignToday(int userId) {
-        Date today = new Date();
-        int c = signInRecordRepo.countByUserIdAndSignInDate(userId,today);
+//        Date today = new Date();
+        StringBuilder sql = new StringBuilder("select count(*) from sign_in_record sir where 1 = 1");
+        int c = new SqlAppender(em,sql)
+                .and("sir.user_id","user_id",userId)
+                .and("sir.sign_in_date","date", TODAY)
+                .count();
+//        int c = signInRecordRepo.countByUserIdAndSignInDate(userId,today);
         return c > 0;
     }
 }

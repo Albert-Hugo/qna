@@ -26,4 +26,5 @@ public class UserTitle {
     String title;
     String titleColor;
     Date createTime;
+    Boolean active;
 }

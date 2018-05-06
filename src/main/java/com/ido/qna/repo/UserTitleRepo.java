@@ -7,4 +7,5 @@ import java.util.List;
 
 public interface UserTitleRepo extends JpaRepository<UserTitle,Integer> {
     List<UserTitle> findByUserId(Integer userId);
+    UserTitle findByUserIdAndActiveIsTrue(Integer userId);
 }

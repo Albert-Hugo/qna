@@ -143,8 +143,8 @@ public class MysqlConfig {
                 = new DriverManagerDataSource();
         dataSource.setUrl("jdbc:mysql://localhost/qna?useUnicode=yes&characterEncoding=UTF-8&autoReconnect=true&useSSL=false");
         dataSource.setDriverClassName("com.mysql.jdbc.Driver");
-        dataSource.setUsername("root");
-        dataSource.setPassword("nopassword666");
+        dataSource.setUsername("ido");
+        dataSource.setPassword("mellamoido123");
 
         return dataSource;
     }
