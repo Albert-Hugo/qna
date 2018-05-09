@@ -23,4 +23,8 @@ public class Reply {
     private Integer userId;
     private Date createTime;
     private Date updateTime;
+    /**
+     * json
+     */
+    private String commentReplies;
 }

@@ -1,7 +1,9 @@
 package com.ido.qna.service;
 
+import com.google.gson.Gson;
 import com.ido.qna.controller.QuestionController;
 import com.ido.qna.controller.ReplyController;
+import com.ido.qna.controller.request.CommentReplyReq;
 import com.ido.qna.entity.Reply;
 import com.ido.qna.entity.UserInfo;
 import com.ido.qna.repo.ReplyRepo;
@@ -19,10 +21,7 @@ import org.springframework.stereotype.Service;
 
 import javax.annotation.Resource;
 import javax.persistence.EntityManager;
-import java.util.Arrays;
-import java.util.Date;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 
 @Service
 @Slf4j
@@ -36,6 +35,19 @@ public class ReplyServiceImpl implements ReplyService {
     EntityManager em;
     @Autowired
     ZanService zanService;
+
+    @Override
+    public void commentReply(CommentReplyReq req) {
+        Reply reply = replyRepo.findOne(req.getReplyId());
+        Gson gson = new Gson();
+        List<CommentReplyReq>  commentReplies = gson.fromJson(reply.getCommentReplies(),List.class);
+        if(commentReplies == null){
+            commentReplies = new ArrayList<>();
+        }
+        commentReplies.add(req);
+        reply.setCommentReplies(gson.toJson(commentReplies));
+        replyRepo.save(reply);
+    }
 
     @Override
     public void deleteByQuestionId(int questionId) {
@@ -81,7 +93,7 @@ public class ReplyServiceImpl implements ReplyService {
     @Override
     public Page<Map<String,Object>> getReply(ReplyController.ReplyListReq replyReq) {
         StringBuilder sql = new StringBuilder("select r.id, r.user_id, u.nick_name as userName, u.gender " +
-                " , u.avatar_url , ut.title as userTitle ,ut.title_color as titleColor" +
+                " , u.avatar_url , ut.title as userTitle ,ut.title_color as titleColor, r.comment_replies" +
                 ", r.content ,r.create_time " +
                 "from reply r " +
                 " join user_info u on u.id = r.user_id " +
@@ -96,6 +108,7 @@ public class ReplyServiceImpl implements ReplyService {
                 .orderBy(sorters)
                 .limit(replyReq.getPageable().getOffset(),replyReq.getPageable().getPageSize())
                 .getResultList();
+        Gson gson = new Gson();
 
         //convert time format
         result.stream().forEach(r-> {
@@ -104,6 +117,7 @@ public class ReplyServiceImpl implements ReplyService {
             int replyId = (int) r.get("id");
             r.put("isZaned",zanService.checkIfUserZanReply(userId,replyId));
             r.put("zanCount",zanService.countByReplyId(replyId));
+            r.put("commentReplies",gson.fromJson((String) r.get("commentReplies"),List.class));
         });
 
         int size  = getReplyCount(replyReq.getQuestionId());

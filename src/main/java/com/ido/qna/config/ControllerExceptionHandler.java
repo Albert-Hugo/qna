@@ -20,7 +20,7 @@ import org.springframework.web.bind.annotation.ResponseStatus;
 @Slf4j
 public class ControllerExceptionHandler {
 
-    @ExceptionHandler(RuntimeException.class)
+    @ExceptionHandler(Exception.class)
     @ResponseBody
     @ResponseStatus(HttpStatus.OK)
     public ResponseDTO handlerServiceOpException(RuntimeException ex) {

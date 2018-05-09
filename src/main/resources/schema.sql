@@ -65,6 +65,7 @@ VALUES
 CREATE TABLE `reply` (
   `id` int(11) NOT NULL AUTO_INCREMENT,
   `content` varchar(255) DEFAULT NULL,
+  `comment_replies` varchar(2048) DEFAULT NULL,
   `create_time` datetime DEFAULT NULL,
   `question_id` int(11) DEFAULT NULL,
   `update_time` datetime DEFAULT NULL,

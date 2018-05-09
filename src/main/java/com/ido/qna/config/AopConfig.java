@@ -38,17 +38,17 @@ public class AopConfig {
 
 
 
-//    @AfterThrowing(
-//            pointcut = "controllerAspect()",
-//            throwing = "error")
-//    public void logAfterThrowing(JoinPoint joinPoint, Throwable error) {
-//        //todo 捕捉相关的错误信息，并作出处理
-//        logger.info(error.getMessage(),error);
+    @AfterThrowing(
+            pointcut = "controllerAspect()",
+            throwing = "error")
+    public void logAfterThrowing(JoinPoint joinPoint, Throwable error) {
+        //todo 捕捉相关的错误信息，并作出处理
+        logger.info(error.getMessage(),error);
 //        if (!(error instanceof BaseCustomException)) {
 //            throw new UnhandleSystemException(error.toString(), error);
 //        }
-//
-//    }
+
+    }
 
     @Before("controllerAspect() ")
     public void beforeOp(JoinPoint joinPoint){
