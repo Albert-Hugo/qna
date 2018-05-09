@@ -58,6 +58,11 @@ public class UserInfoServiceImpl implements UserInfoService {
 
 
     @Override
+    public String getUserNameById(int userId) {
+        return repo.getUserNameById(userId);
+    }
+
+    @Override
     public UserInfo getByUserOpenID(String id) {
         return repo.findByOpenID(id);
     }

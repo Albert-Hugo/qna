@@ -70,4 +70,8 @@ public interface UserInfoService {
     void signIn(int userId);
 
     boolean alreadySignToday(int userId);
+
+    String getUserNameById(int userId);
+
+
 }

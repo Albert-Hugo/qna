@@ -22,6 +22,7 @@ import org.springframework.stereotype.Service;
 import javax.annotation.Resource;
 import javax.persistence.EntityManager;
 import java.util.*;
+import java.util.stream.Collectors;
 
 @Service
 @Slf4j
@@ -117,7 +118,19 @@ public class ReplyServiceImpl implements ReplyService {
             int replyId = (int) r.get("id");
             r.put("isZaned",zanService.checkIfUserZanReply(userId,replyId));
             r.put("zanCount",zanService.countByReplyId(replyId));
-            r.put("commentReplies",gson.fromJson((String) r.get("commentReplies"),List.class));
+            List<LinkedHashMap> cmtRlies = gson.fromJson((String) r.get("commentReplies"),List.class);
+            if(cmtRlies!=null){
+                cmtRlies = cmtRlies.stream().limit(3).map(rp->{
+                    Integer toUserId = (Integer) rp.get("toUserId");
+                    Integer fromUserId = (Integer) rp.get("fromUserId");
+                    rp.put("toUserName",userSer.getUserNameById(toUserId));
+                    rp.put("fromUserName",userSer.getUserNameById(fromUserId));
+                    return rp;
+                }).collect(Collectors.toList());
+            }
+
+
+            r.put("commentReplies",cmtRlies);
         });
 
         int size  = getReplyCount(replyReq.getQuestionId());
