@@ -12,6 +12,6 @@ public interface UserInfoRepo extends JpaRepository<UserInfo,Integer> {
     @Query(value = "select u.id from user_info u where u.openid = :oid",nativeQuery = true)
     Integer getIdByOpenId(@Param("oid") String oid);
     Integer countByIdAndUpdateTime(int userId, Date updatedTime);
-    @Query(value = "select u.nick_name from user_info u where u.openid = :id",nativeQuery = true)
+    @Query(value = "select u.nick_name from user_info u where u.id = :id",nativeQuery = true)
     String getUserNameById(@Param("id")Integer id);
 }
