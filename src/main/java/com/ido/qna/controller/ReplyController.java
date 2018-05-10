@@ -31,13 +31,12 @@ public class ReplyController {
         return ResponseDTO.succss(replyService.getReply(new ReplyListReq(questionId, userId, pageable, new Sorter() {
             @Override
             public boolean isDesc() {
-                return false;
+                return true;
             }
 
             @Override
             public String sortField() {
-                //TODO 添加根据 赞的数量来排序
-                return null;
+                return "createTime";
             }
         })));
     }
