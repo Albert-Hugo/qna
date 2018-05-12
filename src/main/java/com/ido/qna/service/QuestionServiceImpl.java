@@ -17,6 +17,7 @@ import com.rainful.util.DateUtil;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageImpl;
 import org.springframework.data.domain.Pageable;
@@ -56,6 +57,9 @@ public class QuestionServiceImpl implements QuestionService, FunctionInterface.B
     QuestionVideoRepo videoRepo;
     @Autowired
     UserTitleRepo titleRepo;
+
+    @Value("${filterReg}")
+    String filterReg;
 
 
     final String BASIC_QUESTION_RESULT_LIST = "q.id, q.title, q.content, q.create_time,q.read_count" +
@@ -170,19 +174,13 @@ public class QuestionServiceImpl implements QuestionService, FunctionInterface.B
                     .update_where_and("id", "id", req.getUserId())
                     .execute_update();
         }
-        String filePath = null;
-        if (file != null) {
-            try {
-                filePath = uploadService.upload(file.getOriginalFilename(), file.getInputStream(), req.getUserId());
-            } catch (IOException e) {
-                e.printStackTrace();
-            }
-        }
+        //过滤敏感字符
+        //
+        String filteredContent =req.getContent().replaceAll(filterReg,"*");
 
         return repo.save(Question.builder()
-                .content(req.getContent())
+                .content(filteredContent)
                 .title(req.getTitle())
-//                .imgUrl(filePath)
                 .topicId(req.getTopicId())
                 .userId(req.getUserId())
                 .createTime(now)
